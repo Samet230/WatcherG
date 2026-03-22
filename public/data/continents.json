@@ -1,0 +1,37 @@
+[
+    {
+        "code": "EU",
+        "name": "Europe",
+        "nameTr": "Avrupa"
+    },
+    {
+        "code": "AS",
+        "name": "Asia",
+        "nameTr": "Asya"
+    },
+    {
+        "code": "AF",
+        "name": "Africa",
+        "nameTr": "Afrika"
+    },
+    {
+        "code": "NA",
+        "name": "North America",
+        "nameTr": "Kuzey Amerika"
+    },
+    {
+        "code": "SA",
+        "name": "South America",
+        "nameTr": "Güney Amerika"
+    },
+    {
+        "code": "OC",
+        "name": "Oceania",
+        "nameTr": "Okyanusya"
+    },
+    {
+        "code": "AN",
+        "name": "Antarctica",
+        "nameTr": "Antarktika"
+    }
+]

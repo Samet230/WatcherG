@@ -1,0 +1,650 @@
+[
+    {
+        "name": "İstanbul",
+        "country": "TR",
+        "lat": 41.01,
+        "lng": 28.97
+    },
+    {
+        "name": "Ankara",
+        "country": "TR",
+        "lat": 39.93,
+        "lng": 32.86
+    },
+    {
+        "name": "İzmir",
+        "country": "TR",
+        "lat": 38.42,
+        "lng": 27.14
+    },
+    {
+        "name": "Antalya",
+        "country": "TR",
+        "lat": 36.89,
+        "lng": 30.71
+    },
+    {
+        "name": "Bursa",
+        "country": "TR",
+        "lat": 40.19,
+        "lng": 29.06
+    },
+    {
+        "name": "Adana",
+        "country": "TR",
+        "lat": 37.00,
+        "lng": 35.32
+    },
+    {
+        "name": "Gaziantep",
+        "country": "TR",
+        "lat": 37.06,
+        "lng": 37.38
+    },
+    {
+        "name": "Konya",
+        "country": "TR",
+        "lat": 37.87,
+        "lng": 32.49
+    },
+    {
+        "name": "Trabzon",
+        "country": "TR",
+        "lat": 41.00,
+        "lng": 39.72
+    },
+    {
+        "name": "Diyarbakır",
+        "country": "TR",
+        "lat": 37.91,
+        "lng": 40.23
+    },
+    {
+        "name": "Samsun",
+        "country": "TR",
+        "lat": 41.29,
+        "lng": 36.33
+    },
+    {
+        "name": "Mersin",
+        "country": "TR",
+        "lat": 36.80,
+        "lng": 34.63
+    },
+    {
+        "name": "Kayseri",
+        "country": "TR",
+        "lat": 38.73,
+        "lng": 35.48
+    },
+    {
+        "name": "Eskişehir",
+        "country": "TR",
+        "lat": 39.77,
+        "lng": 30.52
+    },
+    {
+        "name": "Van",
+        "country": "TR",
+        "lat": 38.49,
+        "lng": 43.38
+    },
+    {
+        "name": "New York",
+        "country": "US",
+        "lat": 40.71,
+        "lng": -74.01
+    },
+    {
+        "name": "Los Angeles",
+        "country": "US",
+        "lat": 34.05,
+        "lng": -118.24
+    },
+    {
+        "name": "Chicago",
+        "country": "US",
+        "lat": 41.88,
+        "lng": -87.63
+    },
+    {
+        "name": "Houston",
+        "country": "US",
+        "lat": 29.76,
+        "lng": -95.37
+    },
+    {
+        "name": "San Francisco",
+        "country": "US",
+        "lat": 37.77,
+        "lng": -122.42
+    },
+    {
+        "name": "Washington DC",
+        "country": "US",
+        "lat": 38.91,
+        "lng": -77.04
+    },
+    {
+        "name": "Miami",
+        "country": "US",
+        "lat": 25.76,
+        "lng": -80.19
+    },
+    {
+        "name": "Londra",
+        "country": "GB",
+        "lat": 51.51,
+        "lng": -0.13
+    },
+    {
+        "name": "Manchester",
+        "country": "GB",
+        "lat": 53.48,
+        "lng": -2.24
+    },
+    {
+        "name": "Birmingham",
+        "country": "GB",
+        "lat": 52.48,
+        "lng": -1.89
+    },
+    {
+        "name": "Berlin",
+        "country": "DE",
+        "lat": 52.52,
+        "lng": 13.41
+    },
+    {
+        "name": "Münih",
+        "country": "DE",
+        "lat": 48.14,
+        "lng": 11.58
+    },
+    {
+        "name": "Hamburg",
+        "country": "DE",
+        "lat": 53.55,
+        "lng": 9.99
+    },
+    {
+        "name": "Frankfurt",
+        "country": "DE",
+        "lat": 50.11,
+        "lng": 8.68
+    },
+    {
+        "name": "Paris",
+        "country": "FR",
+        "lat": 48.86,
+        "lng": 2.35
+    },
+    {
+        "name": "Marsilya",
+        "country": "FR",
+        "lat": 43.30,
+        "lng": 5.37
+    },
+    {
+        "name": "Lyon",
+        "country": "FR",
+        "lat": 45.76,
+        "lng": 4.84
+    },
+    {
+        "name": "Roma",
+        "country": "IT",
+        "lat": 41.90,
+        "lng": 12.50
+    },
+    {
+        "name": "Milano",
+        "country": "IT",
+        "lat": 45.46,
+        "lng": 9.19
+    },
+    {
+        "name": "Napoli",
+        "country": "IT",
+        "lat": 40.85,
+        "lng": 14.27
+    },
+    {
+        "name": "Madrid",
+        "country": "ES",
+        "lat": 40.42,
+        "lng": -3.70
+    },
+    {
+        "name": "Barselona",
+        "country": "ES",
+        "lat": 41.39,
+        "lng": 2.17
+    },
+    {
+        "name": "Amsterdam",
+        "country": "NL",
+        "lat": 52.37,
+        "lng": 4.90
+    },
+    {
+        "name": "Brüksel",
+        "country": "BE",
+        "lat": 50.85,
+        "lng": 4.35
+    },
+    {
+        "name": "Viyana",
+        "country": "AT",
+        "lat": 48.21,
+        "lng": 16.37
+    },
+    {
+        "name": "Zürih",
+        "country": "CH",
+        "lat": 47.37,
+        "lng": 8.54
+    },
+    {
+        "name": "Stockholm",
+        "country": "SE",
+        "lat": 59.33,
+        "lng": 18.07
+    },
+    {
+        "name": "Oslo",
+        "country": "NO",
+        "lat": 59.91,
+        "lng": 10.75
+    },
+    {
+        "name": "Kopenhag",
+        "country": "DK",
+        "lat": 55.68,
+        "lng": 12.57
+    },
+    {
+        "name": "Helsinki",
+        "country": "FI",
+        "lat": 60.17,
+        "lng": 24.94
+    },
+    {
+        "name": "Varşova",
+        "country": "PL",
+        "lat": 52.23,
+        "lng": 21.01
+    },
+    {
+        "name": "Prag",
+        "country": "CZ",
+        "lat": 50.08,
+        "lng": 14.44
+    },
+    {
+        "name": "Atina",
+        "country": "GR",
+        "lat": 37.98,
+        "lng": 23.73
+    },
+    {
+        "name": "Bükreş",
+        "country": "RO",
+        "lat": 44.43,
+        "lng": 26.10
+    },
+    {
+        "name": "Sofya",
+        "country": "BG",
+        "lat": 42.70,
+        "lng": 23.32
+    },
+    {
+        "name": "Kiev",
+        "country": "UA",
+        "lat": 50.45,
+        "lng": 30.52
+    },
+    {
+        "name": "Moskova",
+        "country": "RU",
+        "lat": 55.76,
+        "lng": 37.62
+    },
+    {
+        "name": "St. Petersburg",
+        "country": "RU",
+        "lat": 59.93,
+        "lng": 30.32
+    },
+    {
+        "name": "Tokyo",
+        "country": "JP",
+        "lat": 35.68,
+        "lng": 139.69
+    },
+    {
+        "name": "Osaka",
+        "country": "JP",
+        "lat": 34.69,
+        "lng": 135.50
+    },
+    {
+        "name": "Pekin",
+        "country": "CN",
+        "lat": 39.90,
+        "lng": 116.40
+    },
+    {
+        "name": "Şanghay",
+        "country": "CN",
+        "lat": 31.23,
+        "lng": 121.47
+    },
+    {
+        "name": "Hong Kong",
+        "country": "CN",
+        "lat": 22.32,
+        "lng": 114.17
+    },
+    {
+        "name": "Shenzhen",
+        "country": "CN",
+        "lat": 22.54,
+        "lng": 114.05
+    },
+    {
+        "name": "Yeni Delhi",
+        "country": "IN",
+        "lat": 28.61,
+        "lng": 77.21
+    },
+    {
+        "name": "Mumbai",
+        "country": "IN",
+        "lat": 19.08,
+        "lng": 72.88
+    },
+    {
+        "name": "Bengaluru",
+        "country": "IN",
+        "lat": 12.97,
+        "lng": 77.59
+    },
+    {
+        "name": "Seul",
+        "country": "KR",
+        "lat": 37.57,
+        "lng": 126.98
+    },
+    {
+        "name": "Cakarta",
+        "country": "ID",
+        "lat": -6.21,
+        "lng": 106.85
+    },
+    {
+        "name": "Bangkok",
+        "country": "TH",
+        "lat": 13.76,
+        "lng": 100.50
+    },
+    {
+        "name": "Hanoi",
+        "country": "VN",
+        "lat": 21.03,
+        "lng": 105.85
+    },
+    {
+        "name": "Manila",
+        "country": "PH",
+        "lat": 14.60,
+        "lng": 120.98
+    },
+    {
+        "name": "Kuala Lumpur",
+        "country": "MY",
+        "lat": 3.14,
+        "lng": 101.69
+    },
+    {
+        "name": "Singapur",
+        "country": "MY",
+        "lat": 1.35,
+        "lng": 103.82
+    },
+    {
+        "name": "Karaçi",
+        "country": "PK",
+        "lat": 24.86,
+        "lng": 67.01
+    },
+    {
+        "name": "İslamabad",
+        "country": "PK",
+        "lat": 33.69,
+        "lng": 73.04
+    },
+    {
+        "name": "Dakka",
+        "country": "BD",
+        "lat": 23.81,
+        "lng": 90.41
+    },
+    {
+        "name": "Tahran",
+        "country": "IR",
+        "lat": 35.69,
+        "lng": 51.39
+    },
+    {
+        "name": "Bağdat",
+        "country": "IQ",
+        "lat": 33.31,
+        "lng": 44.37
+    },
+    {
+        "name": "Riyad",
+        "country": "SA",
+        "lat": 24.71,
+        "lng": 46.68
+    },
+    {
+        "name": "Cidde",
+        "country": "SA",
+        "lat": 21.49,
+        "lng": 39.19
+    },
+    {
+        "name": "Dubai",
+        "country": "AE",
+        "lat": 25.20,
+        "lng": 55.27
+    },
+    {
+        "name": "Abu Dabi",
+        "country": "AE",
+        "lat": 24.45,
+        "lng": 54.65
+    },
+    {
+        "name": "Tel Aviv",
+        "country": "IL",
+        "lat": 32.09,
+        "lng": 34.78
+    },
+    {
+        "name": "Kudüs",
+        "country": "IL",
+        "lat": 31.77,
+        "lng": 35.23
+    },
+    {
+        "name": "Şam",
+        "country": "SY",
+        "lat": 33.51,
+        "lng": 36.28
+    },
+    {
+        "name": "Kabil",
+        "country": "AF",
+        "lat": 34.53,
+        "lng": 69.17
+    },
+    {
+        "name": "Kahire",
+        "country": "EG",
+        "lat": 30.04,
+        "lng": 31.24
+    },
+    {
+        "name": "İskenderiye",
+        "country": "EG",
+        "lat": 31.20,
+        "lng": 29.92
+    },
+    {
+        "name": "Lagos",
+        "country": "NG",
+        "lat": 6.52,
+        "lng": 3.38
+    },
+    {
+        "name": "Johannesburg",
+        "country": "ZA",
+        "lat": -26.20,
+        "lng": 28.05
+    },
+    {
+        "name": "Cape Town",
+        "country": "ZA",
+        "lat": -33.92,
+        "lng": 18.42
+    },
+    {
+        "name": "Nairobi",
+        "country": "KE",
+        "lat": -1.29,
+        "lng": 36.82
+    },
+    {
+        "name": "Addis Abeba",
+        "country": "ET",
+        "lat": 9.02,
+        "lng": 38.75
+    },
+    {
+        "name": "Kazablanka",
+        "country": "MA",
+        "lat": 33.57,
+        "lng": -7.59
+    },
+    {
+        "name": "Tunus",
+        "country": "TN",
+        "lat": 36.81,
+        "lng": 10.17
+    },
+    {
+        "name": "Cezayir",
+        "country": "DZ",
+        "lat": 36.75,
+        "lng": 3.06
+    },
+    {
+        "name": "Hartum",
+        "country": "SD",
+        "lat": 15.50,
+        "lng": 32.56
+    },
+    {
+        "name": "Toronto",
+        "country": "CA",
+        "lat": 43.65,
+        "lng": -79.38
+    },
+    {
+        "name": "Vancouver",
+        "country": "CA",
+        "lat": 49.28,
+        "lng": -123.12
+    },
+    {
+        "name": "Meksiko City",
+        "country": "MX",
+        "lat": 19.43,
+        "lng": -99.13
+    },
+    {
+        "name": "Havana",
+        "country": "CU",
+        "lat": 23.11,
+        "lng": -82.37
+    },
+    {
+        "name": "São Paulo",
+        "country": "BR",
+        "lat": -23.55,
+        "lng": -46.63
+    },
+    {
+        "name": "Rio de Janeiro",
+        "country": "BR",
+        "lat": -22.91,
+        "lng": -43.17
+    },
+    {
+        "name": "Buenos Aires",
+        "country": "AR",
+        "lat": -34.60,
+        "lng": -58.38
+    },
+    {
+        "name": "Santiago",
+        "country": "CL",
+        "lat": -33.45,
+        "lng": -70.67
+    },
+    {
+        "name": "Bogota",
+        "country": "CO",
+        "lat": 4.71,
+        "lng": -74.07
+    },
+    {
+        "name": "Lima",
+        "country": "PE",
+        "lat": -12.05,
+        "lng": -77.04
+    },
+    {
+        "name": "Sidney",
+        "country": "AU",
+        "lat": -33.87,
+        "lng": 151.21
+    },
+    {
+        "name": "Melbourne",
+        "country": "AU",
+        "lat": -37.81,
+        "lng": 144.96
+    },
+    {
+        "name": "Auckland",
+        "country": "NZ",
+        "lat": -36.85,
+        "lng": 174.76
+    },
+    {
+        "name": "Tiflis",
+        "country": "GE",
+        "lat": 41.72,
+        "lng": 44.78
+    },
+    {
+        "name": "Bakü",
+        "country": "AZ",
+        "lat": 40.41,
+        "lng": 49.87
+    }
+]

@@ -1,0 +1,522 @@
+[
+    {
+        "code": "TR",
+        "name": "Turkey",
+        "nameTr": "Türkiye",
+        "continent": "EU",
+        "lat": 39.0,
+        "lng": 35.0
+    },
+    {
+        "code": "US",
+        "name": "United States",
+        "nameTr": "ABD",
+        "continent": "NA",
+        "lat": 39.8,
+        "lng": -98.5
+    },
+    {
+        "code": "GB",
+        "name": "United Kingdom",
+        "nameTr": "Birleşik Krallık",
+        "continent": "EU",
+        "lat": 55.3,
+        "lng": -3.4
+    },
+    {
+        "code": "DE",
+        "name": "Germany",
+        "nameTr": "Almanya",
+        "continent": "EU",
+        "lat": 51.1,
+        "lng": 10.4
+    },
+    {
+        "code": "FR",
+        "name": "France",
+        "nameTr": "Fransa",
+        "continent": "EU",
+        "lat": 46.6,
+        "lng": 2.2
+    },
+    {
+        "code": "IT",
+        "name": "Italy",
+        "nameTr": "İtalya",
+        "continent": "EU",
+        "lat": 42.5,
+        "lng": 12.5
+    },
+    {
+        "code": "ES",
+        "name": "Spain",
+        "nameTr": "İspanya",
+        "continent": "EU",
+        "lat": 40.4,
+        "lng": -3.7
+    },
+    {
+        "code": "PT",
+        "name": "Portugal",
+        "nameTr": "Portekiz",
+        "continent": "EU",
+        "lat": 39.3,
+        "lng": -8.2
+    },
+    {
+        "code": "NL",
+        "name": "Netherlands",
+        "nameTr": "Hollanda",
+        "continent": "EU",
+        "lat": 52.1,
+        "lng": 5.3
+    },
+    {
+        "code": "BE",
+        "name": "Belgium",
+        "nameTr": "Belçika",
+        "continent": "EU",
+        "lat": 50.5,
+        "lng": 4.5
+    },
+    {
+        "code": "CH",
+        "name": "Switzerland",
+        "nameTr": "İsviçre",
+        "continent": "EU",
+        "lat": 46.8,
+        "lng": 8.2
+    },
+    {
+        "code": "AT",
+        "name": "Austria",
+        "nameTr": "Avusturya",
+        "continent": "EU",
+        "lat": 47.5,
+        "lng": 14.5
+    },
+    {
+        "code": "SE",
+        "name": "Sweden",
+        "nameTr": "İsveç",
+        "continent": "EU",
+        "lat": 60.1,
+        "lng": 18.6
+    },
+    {
+        "code": "NO",
+        "name": "Norway",
+        "nameTr": "Norveç",
+        "continent": "EU",
+        "lat": 60.4,
+        "lng": 8.4
+    },
+    {
+        "code": "DK",
+        "name": "Denmark",
+        "nameTr": "Danimarka",
+        "continent": "EU",
+        "lat": 56.2,
+        "lng": 9.5
+    },
+    {
+        "code": "FI",
+        "name": "Finland",
+        "nameTr": "Finlandiya",
+        "continent": "EU",
+        "lat": 61.9,
+        "lng": 25.7
+    },
+    {
+        "code": "PL",
+        "name": "Poland",
+        "nameTr": "Polonya",
+        "continent": "EU",
+        "lat": 51.9,
+        "lng": 19.1
+    },
+    {
+        "code": "CZ",
+        "name": "Czech Republic",
+        "nameTr": "Çekya",
+        "continent": "EU",
+        "lat": 49.8,
+        "lng": 15.5
+    },
+    {
+        "code": "GR",
+        "name": "Greece",
+        "nameTr": "Yunanistan",
+        "continent": "EU",
+        "lat": 39.0,
+        "lng": 21.8
+    },
+    {
+        "code": "RO",
+        "name": "Romania",
+        "nameTr": "Romanya",
+        "continent": "EU",
+        "lat": 45.9,
+        "lng": 24.9
+    },
+    {
+        "code": "BG",
+        "name": "Bulgaria",
+        "nameTr": "Bulgaristan",
+        "continent": "EU",
+        "lat": 42.7,
+        "lng": 25.4
+    },
+    {
+        "code": "UA",
+        "name": "Ukraine",
+        "nameTr": "Ukrayna",
+        "continent": "EU",
+        "lat": 48.3,
+        "lng": 31.1
+    },
+    {
+        "code": "RU",
+        "name": "Russia",
+        "nameTr": "Rusya",
+        "continent": "EU",
+        "lat": 55.7,
+        "lng": 37.6
+    },
+    {
+        "code": "JP",
+        "name": "Japan",
+        "nameTr": "Japonya",
+        "continent": "AS",
+        "lat": 36.2,
+        "lng": 138.2
+    },
+    {
+        "code": "CN",
+        "name": "China",
+        "nameTr": "Çin",
+        "continent": "AS",
+        "lat": 35.0,
+        "lng": 105.0
+    },
+    {
+        "code": "IN",
+        "name": "India",
+        "nameTr": "Hindistan",
+        "continent": "AS",
+        "lat": 20.6,
+        "lng": 78.9
+    },
+    {
+        "code": "KR",
+        "name": "South Korea",
+        "nameTr": "Güney Kore",
+        "continent": "AS",
+        "lat": 35.9,
+        "lng": 127.7
+    },
+    {
+        "code": "ID",
+        "name": "Indonesia",
+        "nameTr": "Endonezya",
+        "continent": "AS",
+        "lat": -0.8,
+        "lng": 113.9
+    },
+    {
+        "code": "TH",
+        "name": "Thailand",
+        "nameTr": "Tayland",
+        "continent": "AS",
+        "lat": 15.9,
+        "lng": 100.9
+    },
+    {
+        "code": "VN",
+        "name": "Vietnam",
+        "nameTr": "Vietnam",
+        "continent": "AS",
+        "lat": 14.0,
+        "lng": 108.2
+    },
+    {
+        "code": "PH",
+        "name": "Philippines",
+        "nameTr": "Filipinler",
+        "continent": "AS",
+        "lat": 12.8,
+        "lng": 121.7
+    },
+    {
+        "code": "MY",
+        "name": "Malaysia",
+        "nameTr": "Malezya",
+        "continent": "AS",
+        "lat": 4.2,
+        "lng": 101.9
+    },
+    {
+        "code": "PK",
+        "name": "Pakistan",
+        "nameTr": "Pakistan",
+        "continent": "AS",
+        "lat": 30.3,
+        "lng": 69.3
+    },
+    {
+        "code": "BD",
+        "name": "Bangladesh",
+        "nameTr": "Bangladeş",
+        "continent": "AS",
+        "lat": 23.6,
+        "lng": 90.3
+    },
+    {
+        "code": "IR",
+        "name": "Iran",
+        "nameTr": "İran",
+        "continent": "AS",
+        "lat": 32.4,
+        "lng": 53.6
+    },
+    {
+        "code": "IQ",
+        "name": "Iraq",
+        "nameTr": "Irak",
+        "continent": "AS",
+        "lat": 33.2,
+        "lng": 43.6
+    },
+    {
+        "code": "SA",
+        "name": "Saudi Arabia",
+        "nameTr": "Suudi Arabistan",
+        "continent": "AS",
+        "lat": 23.8,
+        "lng": 45.0
+    },
+    {
+        "code": "AE",
+        "name": "United Arab Emirates",
+        "nameTr": "BAE",
+        "continent": "AS",
+        "lat": 23.4,
+        "lng": 53.8
+    },
+    {
+        "code": "IL",
+        "name": "Israel",
+        "nameTr": "İsrail",
+        "continent": "AS",
+        "lat": 31.0,
+        "lng": 34.8
+    },
+    {
+        "code": "SY",
+        "name": "Syria",
+        "nameTr": "Suriye",
+        "continent": "AS",
+        "lat": 34.8,
+        "lng": 39.0
+    },
+    {
+        "code": "AF",
+        "name": "Afghanistan",
+        "nameTr": "Afganistan",
+        "continent": "AS",
+        "lat": 33.9,
+        "lng": 67.7
+    },
+    {
+        "code": "EG",
+        "name": "Egypt",
+        "nameTr": "Mısır",
+        "continent": "AF",
+        "lat": 26.8,
+        "lng": 30.8
+    },
+    {
+        "code": "NG",
+        "name": "Nigeria",
+        "nameTr": "Nijerya",
+        "continent": "AF",
+        "lat": 9.0,
+        "lng": 8.6
+    },
+    {
+        "code": "ZA",
+        "name": "South Africa",
+        "nameTr": "Güney Afrika",
+        "continent": "AF",
+        "lat": -30.5,
+        "lng": 22.9
+    },
+    {
+        "code": "KE",
+        "name": "Kenya",
+        "nameTr": "Kenya",
+        "continent": "AF",
+        "lat": -0.0,
+        "lng": 37.9
+    },
+    {
+        "code": "ET",
+        "name": "Ethiopia",
+        "nameTr": "Etiyopya",
+        "continent": "AF",
+        "lat": 9.1,
+        "lng": 40.4
+    },
+    {
+        "code": "MA",
+        "name": "Morocco",
+        "nameTr": "Fas",
+        "continent": "AF",
+        "lat": 31.7,
+        "lng": -7.0
+    },
+    {
+        "code": "TN",
+        "name": "Tunisia",
+        "nameTr": "Tunus",
+        "continent": "AF",
+        "lat": 33.8,
+        "lng": 9.5
+    },
+    {
+        "code": "DZ",
+        "name": "Algeria",
+        "nameTr": "Cezayir",
+        "continent": "AF",
+        "lat": 28.0,
+        "lng": 1.6
+    },
+    {
+        "code": "LY",
+        "name": "Libya",
+        "nameTr": "Libya",
+        "continent": "AF",
+        "lat": 26.3,
+        "lng": 17.2
+    },
+    {
+        "code": "SD",
+        "name": "Sudan",
+        "nameTr": "Sudan",
+        "continent": "AF",
+        "lat": 12.8,
+        "lng": 30.2
+    },
+    {
+        "code": "CD",
+        "name": "DR Congo",
+        "nameTr": "Kongo DC",
+        "continent": "AF",
+        "lat": -4.0,
+        "lng": 21.7
+    },
+    {
+        "code": "CA",
+        "name": "Canada",
+        "nameTr": "Kanada",
+        "continent": "NA",
+        "lat": 56.1,
+        "lng": -106.3
+    },
+    {
+        "code": "MX",
+        "name": "Mexico",
+        "nameTr": "Meksika",
+        "continent": "NA",
+        "lat": 23.6,
+        "lng": -102.5
+    },
+    {
+        "code": "CU",
+        "name": "Cuba",
+        "nameTr": "Küba",
+        "continent": "NA",
+        "lat": 21.5,
+        "lng": -79.9
+    },
+    {
+        "code": "BR",
+        "name": "Brazil",
+        "nameTr": "Brezilya",
+        "continent": "SA",
+        "lat": -14.2,
+        "lng": -51.9
+    },
+    {
+        "code": "AR",
+        "name": "Argentina",
+        "nameTr": "Arjantin",
+        "continent": "SA",
+        "lat": -38.4,
+        "lng": -63.6
+    },
+    {
+        "code": "CL",
+        "name": "Chile",
+        "nameTr": "Şili",
+        "continent": "SA",
+        "lat": -35.6,
+        "lng": -71.5
+    },
+    {
+        "code": "CO",
+        "name": "Colombia",
+        "nameTr": "Kolombiya",
+        "continent": "SA",
+        "lat": 4.5,
+        "lng": -74.2
+    },
+    {
+        "code": "PE",
+        "name": "Peru",
+        "nameTr": "Peru",
+        "continent": "SA",
+        "lat": -9.1,
+        "lng": -75.0
+    },
+    {
+        "code": "AU",
+        "name": "Australia",
+        "nameTr": "Avustralya",
+        "continent": "OC",
+        "lat": -25.2,
+        "lng": 133.7
+    },
+    {
+        "code": "NZ",
+        "name": "New Zealand",
+        "nameTr": "Yeni Zelanda",
+        "continent": "OC",
+        "lat": -40.9,
+        "lng": 174.8
+    },
+    {
+        "code": "GE",
+        "name": "Georgia",
+        "nameTr": "Gürcistan",
+        "continent": "AS",
+        "lat": 42.3,
+        "lng": 43.3
+    },
+    {
+        "code": "AZ",
+        "name": "Azerbaijan",
+        "nameTr": "Azerbaycan",
+        "continent": "AS",
+        "lat": 40.1,
+        "lng": 47.5
+    },
+    {
+        "code": "AM",
+        "name": "Armenia",
+        "nameTr": "Ermenistan",
+        "continent": "AS",
+        "lat": 40.0,
+        "lng": 45.0
+    }
+]
