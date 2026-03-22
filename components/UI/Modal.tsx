@@ -1,0 +1,1 @@
+// WatcherG — Ortak modal bileşeni
