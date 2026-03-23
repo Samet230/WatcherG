@@ -15,6 +15,8 @@ interface MapState {
     isFeedLoading: boolean;
     lastUpdated: string | null;
     setFeedState: (payload: Partial<Pick<MapState, "allPins" | "visiblePins" | "selectedCategories" | "isFeedLoading" | "lastUpdated">>) => void;
+    mobilePanelOpen: "left" | "right" | "bottom" | null;
+    setMobilePanelOpen: (panel: "left" | "right" | "bottom" | null) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -31,4 +33,6 @@ export const useMapStore = create<MapState>((set) => ({
     isFeedLoading: false,
     lastUpdated: null,
     setFeedState: (payload) => set(payload),
+    mobilePanelOpen: null,
+    setMobilePanelOpen: (panel) => set({ mobilePanelOpen: panel }),
 }));

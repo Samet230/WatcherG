@@ -100,18 +100,18 @@ export default function LoginPage() {
       <div style={{ position: "fixed", inset: 0, background: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,136,.01) 3px,rgba(0,255,136,.01) 4px)", pointerEvents: "none", zIndex: 9000, animation: "scanScroll 6s linear infinite" }} />
 
       {/* NAVBAR */}
-      <nav style={{ position: "relative", zIndex: 100, height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 40px", borderBottom: "1px solid rgba(0,255,136,.15)", background: "rgba(3,10,6,.9)", backdropFilter: "blur(16px)", flexShrink: 0 }}>
+      <nav className="relative z-[100] h-14 flex items-center justify-between px-4 md:px-10 border-b border-[#00FFF1]/15 bg-[#030A06]/90 backdrop-blur-md shrink-0">
         <Link href="/"><img src={LOGO_B64} alt="WatcherG" style={{ height: "32px", animation: "lglow 4s ease-in-out infinite" }} /></Link>
-        <div style={{ display: "flex", gap: "20px", alignItems: "center", fontSize: "9px", letterSpacing: "2px", color: "#4A8862" }}>
-          <span><span className="sig-dot" style={{ background: "#00FF88", boxShadow: "0 0 6px #00FF88" }} />SIGNAL_ACTIVE</span>
-          <span><span className="sig-dot" style={{ background: "#00FF88", boxShadow: "0 0 6px #00FF88" }} />ENCRYPTED</span>
-          <div style={{ fontFamily: "monospace", fontSize: "13px", color: "#00FF88", letterSpacing: "2px", padding: "5px 14px", border: "1px solid rgba(0,255,136,.2)" }}>{clock}</div>
+        <div className="flex gap-2 md:gap-5 items-center text-[9px] tracking-[2px] text-[#4A8862]">
+          <span className="hidden md:inline"><span className="sig-dot" style={{ background: "#00FF88", boxShadow: "0 0 6px #00FF88" }} />SIGNAL_ACTIVE</span>
+          <span className="hidden md:inline"><span className="sig-dot" style={{ background: "#00FF88", boxShadow: "0 0 6px #00FF88" }} />ENCRYPTED</span>
+          <div className="font-mono text-[10px] md:text-[13px] text-[#00FF88] tracking-[2px] px-2 py-1 md:px-3 md:py-1.5 border border-[#00FFF1]/20">{clock}</div>
         </div>
-        <Link href="/auth/register" style={{ color: "#00FF88", textDecoration: "none", fontSize: "10px", letterSpacing: "2px", padding: "6px 16px", border: "1px solid rgba(0,255,136,.2)" }}>KAYIT OL</Link>
+        <Link href="/auth/register" className="text-[#00FF88] no-underline text-[9px] md:text-[10px] tracking-[2px] px-2 py-1 md:px-4 md:py-1.5 border border-[#00FFF1]/20">KAYIT OL</Link>
       </nav>
 
       {/* MAIN */}
-      <main style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px", position: "relative", zIndex: 10 }}>
+      <main className="flex-1 flex items-center justify-center p-4 py-8 md:p-8 relative z-10">
         <div style={{ width: "100%", maxWidth: "480px", border: "1px solid rgba(0,255,136,.15)", background: "rgba(3,10,6,.92)", backdropFilter: "blur(20px)", animation: "cardIn .6s ease forwards", position: "relative" }}
           className={isErrorShake ? "animate-error-glow" : isSuccess ? "animate-success-flash" : ""}>
 
@@ -187,9 +187,9 @@ export default function LoginPage() {
             </div>
 
             {/* başlık */}
-            <div style={{ textAlign: "center", marginBottom: "20px" }}>
-              <div style={{ fontFamily: "monospace", fontSize: "20px", fontWeight: 700, color: "#00FF88", letterSpacing: "4px", textShadow: "0 0 20px rgba(0,255,136,0.4)" }}>SİSTEM GİRİŞİ</div>
-              <div style={{ fontSize: "9px", letterSpacing: "3px", color: "#4A8862", marginTop: "4px" }}>SECURE_AUTHENTICATION_PROTOCOL_V2.4</div>
+            <div className="text-center mb-5">
+              <div className="font-mono text-base md:text-xl font-bold text-[#00FF88] tracking-[3px] md:tracking-[4px]" style={{ textShadow: "0 0 20px rgba(0,255,136,0.4)" }}>SİSTEM GİRİŞİ</div>
+              <div className="text-[8px] md:text-[9px] tracking-[2px] md:tracking-[3px] text-[#4A8862] mt-1">SECURE_AUTHENTICATION_PROTOCOL_V2.4</div>
             </div>
 
             {/* error */}

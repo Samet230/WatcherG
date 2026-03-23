@@ -54,6 +54,7 @@ export default function TagBar({ selectedCategories, onToggleCategory }: TagBarP
                             gap: isExpanded ? "5px" : "0px",
                             padding: isExpanded ? "5px 13px" : "5px 10px",
                             minWidth: isExpanded ? "124px" : "40px",
+                            flexShrink: 0,
                             justifyContent: "center",
                             background: isSelected ? `${cfg.renk}18` : "transparent",
                             border: `1px solid ${isSelected ? cfg.renk : "rgba(0,255,136,0.12)"}`,

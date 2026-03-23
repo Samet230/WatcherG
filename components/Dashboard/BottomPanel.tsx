@@ -7,13 +7,29 @@ import { getCategoryItems, getFeedItems, getSourceItems } from "@/lib/dashboardF
 export default function BottomPanel() {
     const activeTheme = useMapStore((state) => state.activeTheme);
     const visiblePins = useMapStore((state) => state.visiblePins);
+    const mobilePanelOpen = useMapStore((state) => state.mobilePanelOpen);
+    const setMobilePanelOpen = useMapStore((state) => state.setMobilePanelOpen);
+    const isFullscreen = useMapStore((state) => state.isFullscreen);
     const timelineItems = getFeedItems(visiblePins, 3, "latest");
     const sourceItems = getSourceItems(visiblePins, 4);
     const categoryItems = getCategoryItems(visiblePins);
 
+    // If mobile panel is not 'bottom', hide it on mobile
+    const mobileClass = mobilePanelOpen === 'bottom'
+        ? "flex absolute bottom-0 left-0 right-0 h-[50dvh] z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.8)]"
+        : "hidden md:flex";
+
     return (
-        <div className="h-48 shrink-0 flex gap-2 w-full tracking-widest uppercase text-[9px]">
-            <div className="w-1/3 border bg-black relative overflow-hidden flex flex-col p-2 dashboard-panel">
+        <div className={`${mobileClass} ${isFullscreen ? 'md:hidden' : 'md:h-48'} shrink-0 flex-col md:flex-row gap-2 w-full tracking-widest uppercase text-[9px] bg-black/95 backdrop-blur-md md:bg-transparent overflow-y-auto md:overflow-visible transition-transform duration-300 p-2 md:p-0`}>
+            {/* Mobile Close Button */}
+            <button
+                className="md:hidden absolute top-2 right-2 text-gray-400 hover:text-white p-2 scale-150 z-50 bg-black/50 rounded"
+                onClick={() => setMobilePanelOpen(null)}
+            >
+                ✕
+            </button>
+
+            <div className="w-full md:w-1/3 border bg-black relative overflow-hidden flex flex-col p-2 dashboard-panel shrink-0 min-h-[150px]">
                 <div className="dashboard-text-accent mb-2 opacity-80">{`+ MEDIA_&_ARCHIVE`}</div>
                 <div className="flex-1 bg-black border border-white/10 relative flex flex-col gap-2 p-3 dashboard-panel">
                     {timelineItems.map((item) => (
@@ -37,7 +53,7 @@ export default function BottomPanel() {
                 </div>
             </div>
 
-            <div className="flex-1 border bg-black p-2 flex flex-col overflow-hidden dashboard-panel">
+            <div className="flex-1 border bg-black p-2 flex flex-col overflow-hidden dashboard-panel shrink-0 min-h-[150px]">
                 <div className="flex gap-4 mb-2 border-b pb-2 opacity-80 dashboard-panel">
                     <span className="text-white opacity-50">{`SOURCES`}</span>
                     <span className="dashboard-text-accent cursor-pointer border-b border-[#00FF41]">{`> ${activeTheme.toUpperCase()} FLOW`}</span>
@@ -63,12 +79,12 @@ export default function BottomPanel() {
                 </div>
             </div>
 
-            <div className="w-64 rounded border border-[#00FF88]/20 bg-black/60 p-2 flex flex-col font-mono text-[10px]">
+            <div className="w-full md:w-64 shrink-0 rounded border border-[#00FF88]/20 bg-black/60 p-2 flex flex-col font-mono text-[10px] min-h-[150px]">
                 <div className="flex gap-3 text-[#00FF88]/60 mb-2 border-b border-[#00FF88]/10 pb-1 justify-between">
                     <div className="flex gap-2">
                         <span className="text-[#00FF88]">● CATEGORIES</span>
                         <span className="text-white border-b border-white">ALL</span>
-                        <span className="text-gray-500">Live</span>
+                        <span className="text-gray-500 hidden md:inline">Live</span>
                         <span className="text-gray-500">View</span>
                     </div>
                     <span className="cursor-pointer">↻</span>

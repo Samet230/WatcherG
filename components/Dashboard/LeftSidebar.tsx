@@ -7,6 +7,9 @@ import { buildSparklinePath, getCategoryItems, getFeedItems, getFeedStats, getRe
 export default function LeftSidebar() {
     const visiblePins = useMapStore((state) => state.visiblePins);
     const isFeedLoading = useMapStore((state) => state.isFeedLoading);
+    const mobilePanelOpen = useMapStore((state) => state.mobilePanelOpen);
+    const setMobilePanelOpen = useMapStore((state) => state.setMobilePanelOpen);
+    const isFullscreen = useMapStore((state) => state.isFullscreen);
 
     const stats = getFeedStats(visiblePins);
     const items = getFeedItems(visiblePins, 5, "priority");
@@ -14,9 +17,22 @@ export default function LeftSidebar() {
     const categories = getCategoryItems(visiblePins);
     const sparklinePath = buildSparklinePath(visiblePins);
 
+    // If mobile panel is not 'left', hide it on mobile
+    const mobileClass = mobilePanelOpen === 'left'
+        ? "flex absolute left-0 top-0 h-[100dvh] w-[90vw] max-w-[320px] z-50 shadow-[4px_0_24px_rgba(0,0,0,0.8)]"
+        : "hidden md:flex";
+
     return (
-        <div className="w-64 shrink-0 flex flex-col gap-3 border bg-black p-3 overflow-y-auto overflow-x-hidden relative custom-scrollbar dashboard-panel uppercase tracking-widest text-[9px]">
-            <div className="flex justify-between items-start mb-4 border-b pb-3 dashboard-panel">
+        <div className={`${mobileClass} ${isFullscreen ? 'md:hidden' : 'md:w-64'} shrink-0 flex-col gap-3 border bg-black/95 backdrop-blur-md md:bg-black p-3 overflow-y-auto overflow-x-hidden custom-scrollbar dashboard-panel uppercase tracking-widest text-[9px] transition-transform duration-300`}>
+            {/* Mobile Close Button */}
+            <button
+                className="md:hidden absolute top-3 right-3 text-gray-400 hover:text-white mt-1 mr-1 p-2 scale-150"
+                onClick={() => setMobilePanelOpen(null)}
+            >
+                ✕
+            </button>
+
+            <div className="flex justify-between items-start mb-4 border-b pb-3 dashboard-panel pr-6">
                 <div>
                     <div className="text-[#FF4444] font-bold mb-1 flex items-center gap-2">
                         <span className="animate-pulse">_</span>

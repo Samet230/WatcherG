@@ -122,24 +122,24 @@ export default function RegisterPage() {
       <div style={{ position: "fixed", inset: 0, background: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,136,.01) 3px,rgba(0,255,136,.01) 4px)", pointerEvents: "none", zIndex: 9000, animation: "scanScroll 6s linear infinite" }} />
 
       {/* NAVBAR */}
-      <nav style={{ position: "relative", zIndex: 100, height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 40px", borderBottom: "1px solid rgba(0,255,136,.15)", background: "rgba(3,10,6,.9)", backdropFilter: "blur(16px)", flexShrink: 0 }}>
+      <nav className="relative z-[100] h-14 flex items-center justify-between px-4 md:px-10 border-b border-[#00FFF1]/15 bg-[#030A06]/90 backdrop-blur-md shrink-0">
         <Link href="/"><img src={LOGO_B64} alt="WatcherG" style={{ height: "32px", animation: "lglow 4s ease-in-out infinite" }} /></Link>
-        <div style={{ display: "flex", gap: "20px", alignItems: "center", fontSize: "9px", letterSpacing: "2px", color: "#4A8862" }}>
-          <span><span className="sig-dot" style={{ background: "#00FF88", boxShadow: "0 0 6px #00FF88" }} />SIGNAL_ACTIVE</span>
-          <div style={{ fontFamily: "monospace", fontSize: "13px", color: "#00FF88", letterSpacing: "2px", padding: "5px 14px", border: "1px solid rgba(0,255,136,.2)" }}>{clock}</div>
+        <div className="flex gap-2 md:gap-5 items-center text-[9px] tracking-[2px] text-[#4A8862]">
+          <span className="hidden md:inline"><span className="sig-dot" style={{ background: "#00FF88", boxShadow: "0 0 6px #00FF88" }} />SIGNAL_ACTIVE</span>
+          <div className="font-mono text-[10px] md:text-[13px] text-[#00FF88] tracking-[2px] px-2 py-1 md:px-3 md:py-1.5 border border-[#00FFF1]/20">{clock}</div>
         </div>
-        <Link href="/auth/login" style={{ color: "#00FF88", textDecoration: "none", fontSize: "10px", letterSpacing: "2px", padding: "6px 16px", border: "1px solid rgba(0,255,136,.2)" }}>GİRİŞ</Link>
+        <Link href="/auth/login" className="text-[#00FF88] no-underline text-[9px] md:text-[10px] tracking-[2px] px-2 py-1 md:px-4 md:py-1.5 border border-[#00FFF1]/20">GİRİŞ</Link>
       </nav>
 
       <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 20px 60px", position: "relative", zIndex: 10 }}>
         {/* sayfa başlığı */}
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <div style={{ fontSize: "9px", letterSpacing: "4px", color: "#4A8862", marginBottom: "8px" }}>{"// YENİ OPERATÖR KAYDI"}</div>
-          <div style={{ fontFamily: "monospace", fontSize: "18px", fontWeight: 700, color: "#00FF88", letterSpacing: "5px", textShadow: "0 0 20px rgba(0,255,136,.4)" }}>PERSONEL KAYIT TERMİNALİ</div>
-          <div style={{ fontSize: "8px", letterSpacing: "3px", color: "#4A8862", marginTop: "6px" }}>SECURE_DATA_ENTRY_PROTOCOL_V2.4</div>
+        <div className="text-center mb-6">
+          <div className="text-[9px] tracking-[4px] text-[#4A8862] mb-2">{"// YENİ OPERATÖR KAYDI"}</div>
+          <div className="font-mono text-sm md:text-lg font-bold text-[#00FF88] tracking-[3px] md:tracking-[5px]" style={{ textShadow: "0 0 20px rgba(0,255,136,.4)" }}>PERSONEL KAYIT TERMİNALİ</div>
+          <div className="text-[8px] tracking-[3px] text-[#4A8862] mt-1.5">SECURE_DATA_ENTRY_PROTOCOL_V2.4</div>
         </div>
 
-        <div style={{ width: "100%", maxWidth: "960px", display: "grid", gridTemplateColumns: "1fr 320px", gap: "14px" }}>
+        <div style={{ width: "100%", maxWidth: "960px", display: "grid", gridTemplateColumns: "1fr", gap: "14px" }} className="md:grid-cols-[1fr_320px]">
 
           {/* ── SOL: FORM ── */}
           <div style={{ border: "1px solid rgba(0,255,136,.15)", background: "rgba(3,10,6,.92)", backdropFilter: "blur(16px)", position: "relative", animation: "cardIn .6s ease forwards" }}
@@ -155,7 +155,7 @@ export default function RegisterPage() {
 
             <form onSubmit={handleRegister} style={{ padding: "20px" }}>
               {/* isim + id */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "14px" }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3.5">
                 <div>
                   <div style={{ fontSize: "8px", letterSpacing: "2.5px", color: "#4A8862", marginBottom: "5px", display: "flex", justifyContent: "space-between" }}><span>TAM İSİM</span><span style={{ color: "#FF4444" }}>*</span></div>
                   <div style={{ position: "relative" }}>

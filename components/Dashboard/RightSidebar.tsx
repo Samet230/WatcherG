@@ -8,11 +8,27 @@ export default function RightSidebar() {
     const activeTheme = useMapStore((state) => state.activeTheme);
     const visiblePins = useMapStore((state) => state.visiblePins);
     const lastUpdated = useMapStore((state) => state.lastUpdated);
+    const mobilePanelOpen = useMapStore((state) => state.mobilePanelOpen);
+    const setMobilePanelOpen = useMapStore((state) => state.setMobilePanelOpen);
+    const isFullscreen = useMapStore((state) => state.isFullscreen);
     const feedItems = getFeedItems(visiblePins, 8, "latest");
 
+    // If mobile panel is not 'right', hide it on mobile
+    const mobileClass = mobilePanelOpen === 'right'
+        ? "flex absolute right-0 top-0 h-[100dvh] w-[90vw] max-w-[320px] z-50 shadow-[4px_0_24px_rgba(0,0,0,0.8)]"
+        : "hidden md:flex";
+
     return (
-        <div className="w-80 shrink-0 flex flex-col border p-3 relative overflow-hidden bg-black dashboard-panel tracking-widest uppercase text-[9px]">
-            <div className="flex justify-between items-center mb-4 border-b pb-3 dashboard-panel">
+        <div className={`${mobileClass} ${isFullscreen ? 'md:hidden' : 'md:w-80'} shrink-0 flex-col border p-3 bg-black/95 backdrop-blur-md md:bg-black dashboard-panel tracking-widest uppercase text-[9px] transition-transform duration-300`}>
+            {/* Mobile Close Button */}
+            <button
+                className="md:hidden absolute top-2 left-2 text-gray-400 hover:text-white p-2 scale-150 z-50"
+                onClick={() => setMobilePanelOpen(null)}
+            >
+                ✕
+            </button>
+
+            <div className="flex justify-between items-center mb-4 border-b pb-3 dashboard-panel pl-6">
                 <div className="flex items-center gap-2">
                     <span className="dashboard-text-accent opacity-80">{`+ LIVE_FEED`}</span>
                 </div>
@@ -23,7 +39,7 @@ export default function RightSidebar() {
                 </div>
             </div>
 
-            <div className="text-gray-500 mb-3 opacity-60 flex items-center gap-2">
+            <div className="text-gray-500 mb-3 opacity-60 flex items-center gap-2 pl-6 md:pl-0">
                 <span className="animate-pulse">_</span> {`LAST_SYNC: ${formatSyncLabel(lastUpdated)}`}
             </div>
 

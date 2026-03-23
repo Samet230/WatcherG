@@ -13,20 +13,55 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const isFullscreen = useMapStore((state) => state.isFullscreen);
     const allPins = useMapStore((state) => state.allPins);
     const visiblePins = useMapStore((state) => state.visiblePins);
+    const mobilePanelOpen = useMapStore((state) => state.mobilePanelOpen);
+    const setMobilePanelOpen = useMapStore((state) => state.setMobilePanelOpen);
     const themeClass = activeTheme !== "all" ? `theme-${activeTheme}` : "theme-general";
     const stats = getFeedStats(allPins);
     const categories = getCategoryItems(visiblePins);
 
     return (
-        <div className={`w-screen h-screen flex flex-col overflow-hidden dashboard-theme-wrapper ${themeClass}`} style={{ backgroundColor: "var(--theme-bg)", color: "var(--theme-text)" }}>
+        <div className={`w-screen h-[100dvh] flex flex-col overflow-hidden dashboard-theme-wrapper ${themeClass}`} style={{ backgroundColor: "var(--theme-bg)", color: "var(--theme-text)" }}>
             {!isFullscreen && <TopNav />}
 
-            <div className={`flex-1 flex overflow-hidden ${isFullscreen ? "p-0 gap-0" : "p-2 gap-2"}`}>
+            <div className={`flex-1 flex overflow-hidden relative ${isFullscreen ? "p-0 gap-0" : "p-0 md:p-2 gap-0 md:gap-2"}`}>
                 {!isFullscreen && <LeftSidebar />}
 
-                <div className="flex-1 flex flex-col gap-2 relative h-full min-w-0">
-                    <div className={`flex-1 overflow-hidden relative ${isFullscreen ? "" : "border dashboard-panel"}`} style={{ backgroundColor: "transparent" }}>
+                <div className="flex-1 flex flex-col gap-0 md:gap-2 relative h-full min-w-0">
+                    <div className={`flex-1 overflow-hidden relative ${isFullscreen ? "" : "md:border dashboard-panel"}`} style={{ backgroundColor: "transparent" }}>
                         {children}
+
+                        {/* Mobile Toggle Buttons & Overlay */}
+                        {!isFullscreen && (
+                            <>
+                                {/* Overlay for closing panels on mobile */}
+                                {mobilePanelOpen && (
+                                    <div
+                                        className="md:hidden absolute inset-0 z-40 bg-transparent"
+                                        onClick={() => setMobilePanelOpen(null)}
+                                    />
+                                )}
+                                <div className="md:hidden absolute inset-0 pointer-events-none z-30">
+                                    <button
+                                        onClick={() => setMobilePanelOpen(mobilePanelOpen === 'left' ? null : 'left')}
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/80 border border-[#00FFF1]/30 text-[#00FFF1] px-1.5 py-3 md:p-2 rounded-r pointer-events-auto backdrop-blur-sm text-[9px] md:text-[10px]"
+                                    >
+                                        ◀ DETAY
+                                    </button>
+                                    <button
+                                        onClick={() => setMobilePanelOpen(mobilePanelOpen === 'right' ? null : 'right')}
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/80 border border-[#00FFF1]/30 text-[#00FFF1] px-1.5 py-3 md:p-2 rounded-l pointer-events-auto backdrop-blur-sm text-[9px] md:text-[10px]"
+                                    >
+                                        AKIŞ ▶
+                                    </button>
+                                    <button
+                                        onClick={() => setMobilePanelOpen(mobilePanelOpen === 'bottom' ? null : 'bottom')}
+                                        className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 border border-[#00FFF1]/30 text-[#00FFF1] px-3 py-1.5 rounded-t pointer-events-auto backdrop-blur-sm shadow-[0_-4px_12px_rgba(0,0,0,0.5)] text-[9px] md:text-[10px]"
+                                    >
+                                        ▲ KAYNAKLAR
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {!isFullscreen && <BottomPanel />}
@@ -36,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {!isFullscreen && (
-                <div className="h-6 shrink-0 border-t dashboard-panel flex items-center justify-between px-4 text-[10px] tracking-widest uppercase">
+                <div className="hidden md:flex h-6 shrink-0 border-t dashboard-panel items-center justify-between px-4 text-[10px] tracking-widest uppercase">
                     <div className="flex gap-4 opacity-70">
                         <span><span className="dashboard-text-accent">ALL</span> {stats.total}</span>
                         <span><span className="text-red-500">● BREAKING</span> {stats.critical}</span>
