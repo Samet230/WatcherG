@@ -2,7 +2,7 @@
 // "Her şey haberdir, konu farklı"
 // Tüm dış API kaynaklarını → NewsCategory Pin formatına çevirir
 
-import type { Pin, NewsCategory } from "@/types/pin";
+import type { EarthquakeEventMeta, Pin, NewsCategory } from "@/types/pin";
 import { CATEGORY_CONFIG, CATEGORY_COLORS, calculatePriority } from "@/types/pin";
 import type { UsgsEarthquakeFeature } from "@/lib/apis/usgs";
 import type { GdeltArticle } from "@/lib/apis/gdelt";
@@ -18,11 +18,31 @@ export function formatEarthquakeToPin(feature: UsgsEarthquakeFeature): Pin {
   const { properties, geometry, id } = feature;
   const [longitude, latitude, depth] = geometry.coordinates;
   const mag = properties.mag;
+  const eventTime = new Date(properties.time).toISOString();
+  const severity = getEarthquakeSeverity(mag);
+  const tsunami = properties.tsunami === 1;
+  const alertLevel = normalizeUsgsAlertLevel(properties.alert);
+  const eventMeta: EarthquakeEventMeta = {
+    type: "earthquake",
+    magnitude: mag,
+    depthKm: depth,
+    eventTime,
+    severity,
+    alertLevel,
+    tsunami,
+    status: properties.status || undefined,
+  };
 
   const baslik = properties.title;
-  const ozet = `Büyüklük ${mag} deprem ${depth} km derinlikte meydana geldi.`;
+  const ozetParts = [
+    `Büyüklük ${mag} deprem ${depth} km derinlikte meydana geldi.`,
+    alertLevel ? `USGS alarm seviyesi: ${alertLevel.toUpperCase()}.` : null,
+    tsunami ? "Tsunami riski işaretlendi." : null,
+  ].filter(Boolean);
+  const ozet = ozetParts.join(" ");
   const kategori: NewsCategory = "disaster";
   const oncelik = calculatePriority(baslik, ozet, kategori);
+  const reliabilityScore = calculateEarthquakeReliability(feature, eventMeta);
 
   return {
     id: `eq_${id}`,
@@ -32,13 +52,22 @@ export function formatEarthquakeToPin(feature: UsgsEarthquakeFeature): Pin {
     ozet,
     koordinat: { lat: latitude, lng: longitude },
     konum: properties.place || undefined,
-    tarih: new Date(properties.time).toISOString(),
+    tarih: eventTime,
     kaynak: "USGS",
-    kaynakSkoru: 95,
+    kaynakSkoru: reliabilityScore,
     alternatifKaynaklar: [],
     renk: getEarthquakeColor(mag),
     detayUrl: properties.url,
-    etiketler: ["deprem", `m${Math.floor(mag)}`, "afet"],
+    etiketler: [
+      "deprem",
+      `m${Math.floor(mag)}`,
+      "afet",
+      `severity:${severity}`,
+      `depth:${Math.round(depth)}`,
+      tsunami ? "tsunami" : "no-tsunami",
+      alertLevel ? `alert:${alertLevel}` : "alert:none",
+    ],
+    eventMeta,
   };
 }
 
@@ -52,6 +81,36 @@ function getEarthquakeColor(magnitude: number): string {
   if (magnitude >= 4.0) return "#FF8800";
   if (magnitude >= 3.0) return "#FFAA00";
   return "#FFCC44";
+}
+
+function getEarthquakeSeverity(
+  magnitude: number
+): EarthquakeEventMeta["severity"] {
+  if (magnitude >= 8) return "great";
+  if (magnitude >= 7) return "major";
+  if (magnitude >= 6) return "strong";
+  if (magnitude >= 5) return "moderate";
+  return "minor";
+}
+
+function normalizeUsgsAlertLevel(
+  alertLevel: string | null
+): EarthquakeEventMeta["alertLevel"] {
+  if (!alertLevel) {
+    return null;
+  }
+
+  const normalized = alertLevel.toLowerCase();
+  if (
+    normalized === "green" ||
+    normalized === "yellow" ||
+    normalized === "orange" ||
+    normalized === "red"
+  ) {
+    return normalized;
+  }
+
+  return null;
 }
 
 // ─── GDELT → KATEGORİ TAHMİNİ ────────────────────
@@ -261,6 +320,7 @@ export function formatEonetToPin(event: EonetEvent): Pin | null {
   const baslik = event.title;
   const ozet = event.description || `${catInfo.title} — NASA EONET`;
   const oncelik = calculatePriority(baslik, ozet, kategori);
+  const reliabilityScore = calculateEonetReliability(event, latestGeometry, catInfo.id);
 
   return {
     id: `eonet_${event.id}`,
@@ -271,7 +331,7 @@ export function formatEonetToPin(event: EonetEvent): Pin | null {
     koordinat: { lat, lng },
     tarih: new Date(latestGeometry.date).toISOString(),
     kaynak: "NASA EONET",
-    kaynakSkoru: 95,
+    kaynakSkoru: reliabilityScore,
     alternatifKaynaklar: event.sources?.map(s => s.url) || [],
     renk: CATEGORY_CONFIG[kategori].renk,
     detayUrl: event.sources?.[0]?.url || event.link,
@@ -324,6 +384,7 @@ export function formatFirmsToPins(records: FirmsFireRecord[]): Pin[] {
     const baslik = `Aktif yangın noktası ${record.satellite || "VIIRS"}`;
     const ozet = `NASA FIRMS aktif yangın tespiti. FRP: ${intensity.toFixed(1)} | Güven: ${record.confidence || "bilinmiyor"}`;
     const oncelik = calculatePriority(baslik, ozet, kategori);
+    const reliabilityScore = calculateFirmsReliability(record);
 
     return {
       id: `firms_${record.acq_date}_${record.acq_time}_${index}`,
@@ -334,7 +395,7 @@ export function formatFirmsToPins(records: FirmsFireRecord[]): Pin[] {
       koordinat: { lat: record.latitude, lng: record.longitude },
       tarih: formatFirmsDate(record.acq_date, record.acq_time),
       kaynak: "NASA FIRMS",
-      kaynakSkoru: 96,
+      kaynakSkoru: reliabilityScore,
       alternatifKaynaklar: [],
       renk: CATEGORY_CONFIG[kategori].renk,
       detayUrl: "https://firms.modaps.eosdis.nasa.gov/",
@@ -348,6 +409,73 @@ function formatFirmsDate(acqDate: string, acqTime: string): string {
   const hours = paddedTime.slice(0, 2);
   const minutes = paddedTime.slice(2, 4);
   return `${acqDate}T${hours}:${minutes}:00Z`;
+}
+
+function calculateEarthquakeReliability(
+  feature: UsgsEarthquakeFeature,
+  eventMeta: EarthquakeEventMeta
+): number {
+  let score = 90;
+
+  if (Number.isFinite(feature.properties.mag)) score += 2;
+  if (Number.isFinite(eventMeta.depthKm)) score += 1;
+  if (feature.properties.place) score += 1;
+  if (feature.properties.url) score += 1;
+  if (feature.properties.status) score += 1;
+  if (feature.properties.updated) score += 1;
+  if (eventMeta.alertLevel) score += 1;
+  if (eventMeta.tsunami) score += 1;
+  if (feature.properties.type?.toLowerCase() === "earthquake") score += 1;
+
+  return clampReliabilityScore(score, 82, 99);
+}
+
+function calculateEonetReliability(
+  event: EonetEvent,
+  latestGeometry: EonetEvent["geometry"][number],
+  categoryId: string
+): number {
+  let score = 84;
+
+  if (event.description) score += 2;
+  if (event.link) score += 1;
+  if (event.sources?.length) score += Math.min(event.sources.length, 3);
+  if (event.geometry?.length) score += Math.min(event.geometry.length, 3);
+  if (latestGeometry.type === "Point") score += 2;
+  if (latestGeometry.type === "Polygon") score += 1;
+  if (latestGeometry.date) score += 1;
+  if (categoryId && categoryId !== "unknown") score += 1;
+  if (event.categories?.length > 1) score += 1;
+
+  return clampReliabilityScore(score, 74, 96);
+}
+
+function calculateFirmsReliability(record: FirmsFireRecord): number {
+  let score = 88;
+
+  if (record.frp !== undefined) score += 3;
+  if (record.brightness !== undefined || record.bright_ti4 !== undefined || record.bright_ti5 !== undefined) {
+    score += 2;
+  }
+  if (record.satellite) score += 1;
+  if (record.daynight) score += 1;
+
+  const normalizedConfidence = record.confidence?.toLowerCase().trim();
+  if (normalizedConfidence) {
+    if (["h", "high", "nominal", "n", "100"].includes(normalizedConfidence)) {
+      score += 3;
+    } else if (["l", "low"].includes(normalizedConfidence)) {
+      score -= 2;
+    } else {
+      score += 1;
+    }
+  }
+
+  return clampReliabilityScore(score, 78, 99);
+}
+
+function clampReliabilityScore(score: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, score));
 }
 
 // ─── TOPLU ÇEVIRMELER ─────────────────────────────
