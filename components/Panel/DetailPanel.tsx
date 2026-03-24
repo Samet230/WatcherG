@@ -60,10 +60,10 @@ export default function DetailPanel({
     };
 
     return (
-        <div className="absolute bottom-0 left-0 right-0 z-50 md:absolute md:right-4 md:bottom-auto md:top-16 md:left-auto md:w-96 animate-slide-up">
-            <div className="bg-[#12121A]/95 border border-[#1E1E2E] rounded-t-2xl md:rounded-2xl backdrop-blur-md shadow-2xl overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 z-[60] md:left-auto md:right-3 md:top-4 md:bottom-4 md:w-[22rem] lg:w-[23rem] xl:w-96 animate-slide-up">
+            <div className="bg-[#12121A]/95 border border-[#1E1E2E] rounded-t-2xl md:rounded-2xl backdrop-blur-md shadow-2xl overflow-hidden md:h-full md:flex md:flex-col">
                 {/* Başlık barı */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E1E2E]">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E1E2E] shrink-0">
                     <div className="flex items-center gap-2">
                         <span className="text-lg">
                             {CATEGORY_ICONS[pin.kategori] || "📌"}
@@ -81,12 +81,12 @@ export default function DetailPanel({
                 </div>
 
                 {/* Pin detay içeriği */}
-                <div className="px-4 py-3">
+                <div className="px-4 py-3 md:flex-1 md:min-h-0 md:overflow-y-auto">
                     <PinDetail pin={pin} />
                 </div>
 
                 {/* Kaynak değiştirme okları + alt butonlar */}
-                <div className="px-4 py-3 border-t border-[#1E1E2E] space-y-2">
+                <div className="px-4 py-3 border-t border-[#1E1E2E] space-y-2 shrink-0">
                     {/* Gezinti okları — aynı kategorideki pinler arası */}
                     {sameCategoryPins.length > 1 && (
                         <div className="flex items-center justify-between">

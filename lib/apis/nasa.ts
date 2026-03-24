@@ -1,5 +1,7 @@
-// WatcherG — NASA EONET (Earth Observatory Natural Event Tracker) API
-// Açık API, auth gerekmez. Doğal afetleri, iklim olaylarını sağlar.
+// WatcherG - NASA EONET API
+// Acik API, auth gerekmez. Dogal afetleri ve iklim olaylarini saglar.
+
+import { fetchJsonWithTimeout } from "@/lib/server/fetchWithTimeout";
 
 export interface EonetEvent {
     id: string;
@@ -15,38 +17,52 @@ export interface EonetEvent {
     }>;
 }
 
+interface EonetApiResponse {
+    events?: EonetEvent[];
+}
+
+interface FetchNasaEventsOptions {
+    throwOnError?: boolean;
+    timeoutMs?: number;
+}
+
 const EONET_API_URL = "https://eonet.gsfc.nasa.gov/api/v3/events";
 
-// NASA EONET verilerini getir
-// Kategori ID'leri: 
-// - wildfires (10)
-// - volcanoes (12)
-// - severeStorms (10) - bazen 15
-// Not: Depremler (earthquakes) USGS'den alındığı için filtrelenecektir (ID: 14)
-export async function fetchNasaEvents(categoryIds?: string, days: number = 7): Promise<EonetEvent[]> {
+export async function fetchNasaEvents(
+    categoryIds?: string,
+    days: number = 7,
+    options: FetchNasaEventsOptions = {}
+): Promise<EonetEvent[]> {
     try {
         let url = `${EONET_API_URL}?days=${days}`;
         if (categoryIds) {
             url += `&category=${categoryIds}`;
         }
 
-        const res = await fetch(url, { next: { revalidate: 300 } }); // 5 dk cache
-        if (!res.ok) {
-            console.error(`NASA EONET Hatası: ${res.status}`);
-            return [];
-        }
-
-        const data = await res.json();
-
-        // Depremleri burada direkt filtreliyoruz (Kullanıcı talebi)
-        const events = data.events || [];
-        return events.filter((event: EonetEvent) => {
-            const hasEarthquake = event.categories.some(c => c.id === "earthquakes" || c.title.toLowerCase().includes("earthquake"));
-            return !hasEarthquake;
+        const data = await fetchJsonWithTimeout<EonetApiResponse>(url, {
+            source: "NASA EONET API",
+            timeoutMs: options.timeoutMs,
+            next: { revalidate: 300 },
         });
 
-    } catch (e) {
-        console.error("NASA API fetch hatası:", e);
+        const events = data.events || [];
+
+        return events.filter((event) => {
+            const hasEarthquake = event.categories.some(
+                (category) =>
+                    category.id === "earthquakes" ||
+                    category.title.toLowerCase().includes("earthquake")
+            );
+
+            return !hasEarthquake;
+        });
+    } catch (error) {
+        console.error("NASA API fetch hatasi:", error);
+
+        if (options.throwOnError) {
+            throw error;
+        }
+
         return [];
     }
 }

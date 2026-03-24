@@ -6,6 +6,19 @@ export interface PinCoordinate {
   lng: number;
 }
 
+export interface EarthquakeEventMeta {
+  type: "earthquake";
+  magnitude: number;
+  depthKm: number;
+  eventTime: string;
+  severity: "minor" | "moderate" | "strong" | "major" | "great";
+  alertLevel: "green" | "yellow" | "orange" | "red" | null;
+  tsunami: boolean;
+  status?: string;
+}
+
+export type PinEventMeta = EarthquakeEventMeta;
+
 export interface Pin {
   id: string;
   kategori: NewsCategory;
@@ -23,6 +36,7 @@ export interface Pin {
   detayUrl: string;
   gorsel?: string;                // ← YENİ: haber görseli
   etiketler?: string[];
+  eventMeta?: PinEventMeta;
 }
 
 // ─── KATEGORİLER ─────────────────────────────────

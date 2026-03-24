@@ -1,18 +1,21 @@
-// WatcherG — Cache yönetim katmanı
-// Basit in-memory cache — ileride Upstash Redis'e geçiş sadece bu dosyayı etkiler
+// WatcherG - Cache yonetim katmani
+// Basit in-memory cache. Ileride Redis'e gecis sadece bu dosyayi etkiler.
 
 interface CacheEntry<T> {
     data: T;
     expireAt: number;
 }
 
-// Bellekte tutulan cache deposu
+export interface CacheSnapshot<T> {
+    data: T | null;
+    isExpired: boolean;
+    expireAt: number | null;
+}
+
 const cacheStore = new Map<string, CacheEntry<unknown>>();
 
-// Varsayılan cache süresi: 10 dakika (milisaniye)
 const DEFAULT_TTL_MS = 10 * 60 * 1000;
 
-// Cache'den veri oku — süresi dolmuşsa null döner
 export function getFromCache<T>(key: string): T | null {
     const entry = cacheStore.get(key);
     if (!entry) return null;
@@ -25,7 +28,24 @@ export function getFromCache<T>(key: string): T | null {
     return entry.data as T;
 }
 
-// Cache'e veri yaz — opsiyonel süre (ms)
+export function peekCache<T>(key: string): CacheSnapshot<T> {
+    const entry = cacheStore.get(key);
+
+    if (!entry) {
+        return {
+            data: null,
+            isExpired: false,
+            expireAt: null,
+        };
+    }
+
+    return {
+        data: entry.data as T,
+        isExpired: Date.now() > entry.expireAt,
+        expireAt: entry.expireAt,
+    };
+}
+
 export function setToCache<T>(
     key: string,
     data: T,
@@ -37,17 +57,14 @@ export function setToCache<T>(
     });
 }
 
-// Belirli bir cache kaydını sil
 export function deleteFromCache(key: string): void {
     cacheStore.delete(key);
 }
 
-// Tüm cache'i temizle
 export function clearCache(): void {
     cacheStore.clear();
 }
 
-// Süresi dolmuş tüm kayıtları temizle
 export function purgeExpiredEntries(): number {
     let purgedCount = 0;
     const now = Date.now();
