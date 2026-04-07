@@ -19,6 +19,10 @@ import { useNotifications } from "@/hooks/useNotifications";
 import NotificationBell from "../Notifications/NotificationBell";
 import NotificationList from "../Notifications/NotificationList";
 import TimelinePanel from "../Panel/TimelinePanel";
+import LanguagePicker from "../LanguagePicker";
+import { translate } from "@/lib/i18n";
+import { useLanguageStore } from "@/store/languageStore";
+import ClusterListPanel from "./ClusterListPanel";
 
 interface ApiResponse {
   success: boolean;
@@ -69,6 +73,9 @@ export default function GlobeContainer() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isPinStarred, setIsPinStarred] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
+  const [clusterPins, setClusterPins] = useState<Pin[]>([]);
+  const [videoPins, setVideoPins] = useState<Pin[]>([]);
+  const language = useLanguageStore((state) => state.language);
 
   useEffect(() => {
     getCurrentUser().then(({ user }) => {
@@ -98,7 +105,7 @@ export default function GlobeContainer() {
   const categoryFilteredPins = useMemo(
     () =>
       selectedCategories.length === 0
-        ? pins
+        ? []
         : pins.filter((pin) => selectedCategories.includes(pin.kategori)),
     [pins, selectedCategories]
   );
@@ -145,10 +152,10 @@ export default function GlobeContainer() {
         // formatter kategoriyi halleder
         if (
           selectedCategories.some((c) =>
-            ["general", "politics", "health", "economy"].includes(c)
+            ["general", "politics", "health", "economy", "technology", "science"].includes(c)
           )
         ) {
-          endpointsToFetch.add("/api/news");
+          endpointsToFetch.add(`/api/news?lang=${language}`);
         }
 
         const requests = Array.from(endpointsToFetch).map((url) =>
@@ -180,7 +187,36 @@ export default function GlobeContainer() {
     fetchAllPins();
     const interval = setInterval(fetchAllPins, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [selectedCategories]);
+  }, [language, selectedCategories]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchVideoPins = async () => {
+      try {
+        const response = await fetch("/api/videos");
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.error || "Video akisi alinamadi");
+        }
+        if (!cancelled) {
+          setVideoPins(payload.data || []);
+        }
+      } catch (error) {
+        console.error("Video akisi cekilemedi:", error);
+        if (!cancelled) {
+          setVideoPins([]);
+        }
+      }
+    };
+
+    fetchVideoPins();
+    const interval = window.setInterval(fetchVideoPins, 15 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, []);
 
   const handlePinSelect = useCallback(async (pin: Pin) => {
     setSelectedPin(pin);
@@ -191,6 +227,17 @@ export default function GlobeContainer() {
       } catch { setIsPinStarred(false); }
     }
   }, [currentUserId]);
+
+  const handleClusterSelect = useCallback((clusteredPins: Pin[]) => {
+    const orderedPins = [...clusteredPins].sort((a, b) => {
+      const priorityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+      const priorityDelta = priorityOrder[a.oncelik] - priorityOrder[b.oncelik];
+      if (priorityDelta !== 0) return priorityDelta;
+      return b.kaynakSkoru - a.kaynakSkoru;
+    });
+
+    setClusterPins(orderedPins);
+  }, []);
 
   const handleStarToggle = useCallback(async (pin: Pin) => {
     if (!currentUserId) return;
@@ -229,6 +276,10 @@ export default function GlobeContainer() {
   const activeModes = selectedCategories
     .map((c) => CATEGORY_CONFIG[c]?.etiket || c)
     .join(" + ");
+  const relatedVideos = useMemo(
+    () => (selectedPin ? findRelatedVideos(selectedPin, videoPins) : []),
+    [selectedPin, videoPins]
+  );
 
   return (
     <div className="relative w-full h-full">
@@ -244,6 +295,7 @@ export default function GlobeContainer() {
       {/* 2D Leaflet */}
       {viewMode === "2d" && (
         <LeafletMap
+          key={`map-${isFullscreen ? "fullscreen" : "windowed"}`}
           pins={filteredPins}
           selectedCategories={selectedCategories}
           onPinSelect={handlePinSelect}
@@ -252,7 +304,12 @@ export default function GlobeContainer() {
 
       {/* 3D Globe */}
       {viewMode === "3d" && (
-        <VectorGlobe pins={filteredPins} onPinClick={handlePinSelect} />
+        <VectorGlobe
+          key={`globe-${isFullscreen ? "fullscreen" : "windowed"}`}
+          pins={filteredPins}
+          onPinClick={handlePinSelect}
+          onClusterClick={handleClusterSelect}
+        />
       )}
 
       {/* ── ÜST BAR ── */}
@@ -307,18 +364,14 @@ export default function GlobeContainer() {
             {isFullscreen ? "🗗" : "⛶"}
           </button>
 
+          <LanguagePicker compact />
+
           {/* Profil */}
-          {isAuthenticated ? (
+          {isAuthenticated && (
             <Link href="/profile"
               style={{ background: "rgba(3,10,6,0.9)", border: "1px solid rgba(0,255,136,0.15)", backdropFilter: "blur(14px)", padding: "8px 12px", textDecoration: "none", fontSize: "14px", flexShrink: 0 }}
               title="Profil & Ayarlar">
               👤
-            </Link>
-          ) : (
-            <Link href="/auth/register"
-              style={{ background: "rgba(3,10,6,0.9)", border: "1px solid rgba(255,136,0,0.22)", color: "#FF8800", backdropFilter: "blur(14px)", padding: "8px 12px", textDecoration: "none", fontSize: "11px", letterSpacing: "1px", flexShrink: 0 }}
-              title="Kayıt olarak tüm özellikleri aç">
-              KAYIT
             </Link>
           )}
 
@@ -369,10 +422,11 @@ export default function GlobeContainer() {
 
       {isGuest && (
         <div style={{ position: "absolute", top: "130px", left: "50%", transform: "translateX(-50%)", zIndex: 40, background: "rgba(3,10,6,0.95)", border: "1px solid rgba(255,136,0,0.22)", backdropFilter: "blur(14px)", padding: "14px 20px", textAlign: "center", fontFamily: "monospace" }}>
-          <div style={{ color: "#FF8800", fontSize: "9px", letterSpacing: "3px", marginBottom: "4px" }}>MİSAFİR MODU</div>
+          <div style={{ color: "#FF8800", fontSize: "9px", letterSpacing: "3px", marginBottom: "4px" }}>{translate(language, "guest_mode")}</div>
           <div style={{ color: "#C0FFD8", fontSize: "11px" }}>
-            Arama, bildirim, zaman çizelgesi ve yıldızlama için kayıt olman gerekiyor.
+            {translate(language, "search_disabled_message")}
           </div>
+          <div style={{ color: "#4A8862", fontSize: "10px", marginTop: "6px" }}>{translate(language, "guest_language_note")}</div>
         </div>
       )}
 
@@ -388,14 +442,22 @@ export default function GlobeContainer() {
       {/* Arama sonuç yok */}
       {search.hasSearched && search.results.length === 0 && !search.isSearching && (
         <div style={{ position: "absolute", top: "130px", left: "50%", transform: "translateX(-50%)", zIndex: 40, background: "rgba(3,10,6,0.95)", border: "1px solid rgba(0,255,136,0.15)", backdropFilter: "blur(14px)", padding: "14px 24px", textAlign: "center", fontFamily: "monospace" }}>
-          <div style={{ color: "#4A8862", fontSize: "9px", letterSpacing: "3px", marginBottom: "4px" }}>SORGU SONUCU</div>
+          <div style={{ color: "#4A8862", fontSize: "9px", letterSpacing: "3px", marginBottom: "4px" }}>{translate(language, "search_results_none_title")}</div>
           <div style={{ color: "#C0FFD8", fontSize: "11px" }}>
-            &quot;<span style={{ color: "#00FF88" }}>{search.query}</span>&quot; için sonuç bulunamadı
+            &quot;<span style={{ color: "#00FF88" }}>{search.query}</span>&quot; {translate(language, "search_results_none_body")}
           </div>
           <div style={{ color: "#4A8862", fontSize: "9px", marginTop: "4px", letterSpacing: "1px" }}>
-            Farklı kelimeler deneyin veya aramayı temizleyin
+            {translate(language, "search_results_none_hint")}
           </div>
         </div>
+      )}
+
+      {clusterPins.length > 0 && (
+        <ClusterListPanel
+          pins={clusterPins}
+          onClose={() => setClusterPins([])}
+          onSelect={handlePinSelect}
+        />
       )}
 
       {/* ── ALT BAR ── */}
@@ -440,12 +502,97 @@ export default function GlobeContainer() {
         pin={selectedPin}
         onClose={() => setSelectedPin(null)}
         allPins={filteredPins}
+        relatedVideos={relatedVideos}
         onNavigate={handlePinSelect}
         onStar={isAuthenticated ? handleStarToggle : undefined}
         isStarred={isPinStarred}
       />
     </div>
   );
+}
+
+function findRelatedVideos(pin: Pin, videos: Pin[]): Pin[] {
+  if (pin.etiketler?.includes("youtube")) {
+    return [];
+  }
+
+  const pinTitleTokens = tokenizeVideoMatch(normalizeVideoMatchText(pin.baslik));
+  const pinBodyTokens = tokenizeVideoMatch(normalizeVideoMatchText(`${pin.ozet} ${pin.konum || ""}`));
+  const pinTokens = Array.from(new Set([...pinTitleTokens, ...pinBodyTokens]));
+  const pinTimestamp = new Date(pin.tarih).getTime();
+  const pinLocation = pin.konum || "";
+  const pinTags = pin.etiketler || [];
+  const pinHasSpecificLocation = hasSpecificVideoLocation(pinLocation);
+
+  return videos
+    .filter((video) => video.kategori === pin.kategori)
+    .map((video) => {
+      const videoTitleTokens = tokenizeVideoMatch(normalizeVideoMatchText(video.baslik));
+      const videoBodyTokens = tokenizeVideoMatch(normalizeVideoMatchText(`${video.ozet} ${video.konum || ""}`));
+      const videoTokens = Array.from(new Set([...videoTitleTokens, ...videoBodyTokens]));
+      const sharedKeywordCount = videoTokens.filter((token) => pinTokens.includes(token)).length;
+      const sharedTitleCount = videoTitleTokens.filter((token) => pinTitleTokens.includes(token)).length;
+      const videoLocation = video.konum || "";
+      const videoTags = video.etiketler || [];
+      const sameLocation =
+        Boolean(pinLocation && videoLocation)
+        && normalizeVideoMatchText(pinLocation) === normalizeVideoMatchText(videoLocation);
+      const sameRegion =
+        pinTags.length > 0
+        && videoTags.length > 0
+        && pinTags.some((tag) => videoTags.includes(tag) && tag.length <= 3);
+      const timeDeltaHours = Math.abs(new Date(video.tarih).getTime() - pinTimestamp) / 3600000;
+      const sharedKeywordGate =
+        sharedTitleCount >= 2
+        || (sharedTitleCount >= 1 && (sameLocation || sameRegion))
+        || (sharedKeywordCount >= 4 && sameLocation)
+        || (sharedKeywordCount >= 5 && sameRegion && timeDeltaHours <= 18)
+        || (sharedKeywordCount >= 6 && !pinHasSpecificLocation && timeDeltaHours <= 12);
+
+      const score =
+        sharedTitleCount * 22
+        + sharedKeywordCount * 6
+        + (sameLocation ? 28 : 0)
+        + (sameRegion ? 10 : 0)
+        + (timeDeltaHours <= 24 ? 8 : timeDeltaHours <= 48 ? 4 : 0)
+        + Math.round(video.kaynakSkoru / 10);
+
+      return {
+        video,
+        score,
+        sharedKeywordGate,
+      };
+    })
+    .filter((entry) => entry.sharedKeywordGate && entry.score >= 42)
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3)
+    .map((entry) => entry.video);
+}
+
+function normalizeVideoMatchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function tokenizeVideoMatch(value: string): string[] {
+  const stopwords = new Set([
+    "with", "from", "that", "this", "into", "after", "before", "about", "would", "could",
+    "there", "their", "while", "where", "which", "video", "haber", "world", "news", "update",
+    "turkiye", "turkey", "global", "breaking", "report", "live", "today", "istem", "gundem",
+  ]);
+  return Array.from(new Set(
+    value
+      .split(/[^a-z0-9]+/)
+      .map((token) => token.trim())
+      .filter((token) => token.length >= 4 && !stopwords.has(token))
+  ));
+}
+
+function hasSpecificVideoLocation(value: string): boolean {
+  const normalized = normalizeVideoMatchText(value);
+  return normalized.length > 0 && normalized !== "global";
 }
 
 

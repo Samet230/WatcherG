@@ -240,6 +240,24 @@ function buildCategoryFields(pin: Pin): string {
         </div>
       </div>`;
 
+    case "technology": return `
+      <div style="background:rgba(168,85,247,0.06);padding:8px 9px;border:1px solid rgba(168,85,247,0.2);margin-bottom:8px">
+        <div style="${row}"><span style="${lbl}">TYPE</span><span style="color:#A855F7">● TECH WATCH</span></div>
+        <div style="${row}"><span style="${lbl}">REGION</span><span style="${val}">📍 ${pin.konum || "Küresel"}</span></div>
+        <div style="display:flex;justify-content:space-between;padding-top:5px;font-size:9px">
+          <span style="${lbl}">SOURCE</span><span style="color:#A855F7">${pin.kaynak}</span>
+        </div>
+      </div>`;
+
+    case "science": return `
+      <div style="background:rgba(125,249,255,0.06);padding:8px 9px;border:1px solid rgba(125,249,255,0.2);margin-bottom:8px">
+        <div style="${row}"><span style="${lbl}">TYPE</span><span style="color:#7DF9FF">● SCIENCE BRIEF</span></div>
+        <div style="${row}"><span style="${lbl}">REGION</span><span style="${val}">📍 ${pin.konum || "Küresel"}</span></div>
+        <div style="display:flex;justify-content:space-between;padding-top:5px;font-size:9px">
+          <span style="${lbl}">SOURCE</span><span style="color:#7DF9FF">${pin.kaynak}</span>
+        </div>
+      </div>`;
+
     // ── GENEL ────────────────────────────────
     default: return `
       <div style="padding:4px 0 8px;font-size:9px;letter-spacing:1px;color:#4A8862;line-height:1.6">

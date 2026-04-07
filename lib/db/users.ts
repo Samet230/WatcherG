@@ -9,6 +9,7 @@ export const createProfile = async (userId: string) => {
         const { data, error } = await supabase.from("profiles").insert([
             {
                 user_id: userId,
+                language: "tr",
             },
         ]);
         if (error) throw error;

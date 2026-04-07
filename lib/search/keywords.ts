@@ -43,6 +43,17 @@ const CATEGORY_KEYWORDS: Record<PinCategory, string[]> = {
     "petrol", "oil", "kripto", "crypto", "bitcoin", "resesyon", "recession",
     "imf", "dünya bankası", "world bank",
   ],
+  technology: [
+    "teknoloji", "technology", "yapay zeka", "ai", "artificial intelligence",
+    "yazılım", "yazilim", "software", "çip", "cip", "chip", "semiconductor",
+    "robotik", "robotics", "startup", "uygulama", "app", "platform", "cyber", "siber",
+  ],
+  science: [
+    "bilim", "science", "araştırma", "arastirma", "research", "study",
+    "laboratuvar", "laboratory", "fizik", "physics", "biyoloji", "biology",
+    "astronomi", "astronomy", "kuantum", "quantum", "deney", "experiment",
+    "keşif", "kesif", "discovery",
+  ],
   general: [
     "haber", "news", "son dakika", "breaking", "gündem", "agenda",
     "gelişme", "development", "olay", "incident", "açıklama", "statement",

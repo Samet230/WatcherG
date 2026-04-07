@@ -1,9 +1,6 @@
 "use client";
 
-// WatcherG — 2D Leaflet Harita Bileşeni
-// Deprem + haber pinleri ve interaktif popup'lar ile karanlık tema harita
-
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import L from "leaflet";
 import type { Pin, PinCategory } from "@/types/pin";
 import { addPinsToMap, clearPinsFromMap } from "./MapPin";
@@ -22,8 +19,38 @@ export default function LeafletMap({
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMapRef = useRef<L.Map | null>(null);
     const markersRef = useRef<L.CircleMarker[]>([]);
+    const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-    // Haritayı başlat
+    const scheduleInvalidateSize = useCallback(() => {
+        const map = leafletMapRef.current;
+        if (!map) return;
+
+        const invalidate = () => {
+            map.invalidateSize(true);
+        };
+
+        invalidate();
+        window.requestAnimationFrame(invalidate);
+        window.setTimeout(invalidate, 120);
+        window.setTimeout(invalidate, 280);
+        window.setTimeout(invalidate, 520);
+    }, []);
+
+    const recoverViewport = useCallback(() => {
+        const map = leafletMapRef.current;
+        if (!map) return;
+
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        scheduleInvalidateSize();
+        map.setView(center, zoom, { animate: false });
+        map.eachLayer((layer) => {
+            if (layer instanceof L.TileLayer) {
+                layer.redraw();
+            }
+        });
+    }, [scheduleInvalidateSize]);
+
     useEffect(() => {
         if (!mapRef.current || leafletMapRef.current) return;
 
@@ -32,17 +59,22 @@ export default function LeafletMap({
             zoom: 3,
             zoomControl: false,
             attributionControl: false,
-            preferCanvas: true, // Fixes disappearing vector markers during zoom
+            preferCanvas: true,
         });
 
-        // CartoDB Dark Matter tile katmanı (ücretsiz, key gerektirmez)
         L.tileLayer(
             "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
             {
                 maxZoom: 19,
                 subdomains: "abcd",
+                updateWhenIdle: false,
+                keepBuffer: 4,
             }
         ).addTo(map);
+
+        map.whenReady(() => {
+            recoverViewport();
+        });
 
         L.control.zoom({ position: "bottomright" }).addTo(map);
 
@@ -55,55 +87,70 @@ export default function LeafletMap({
 
         leafletMapRef.current = map;
 
-        // Container boyut değişimlerini yakala (Kayma hatasını önler)
-        const timer = setTimeout(() => {
-            map.invalidateSize();
-        }, 100);
+        const timer = window.setTimeout(() => {
+            recoverViewport();
+        }, 120);
 
         const handleResize = () => {
-            map.invalidateSize();
+            recoverViewport();
         };
         window.addEventListener("resize", handleResize);
 
+        if (typeof ResizeObserver !== "undefined" && mapRef.current) {
+            resizeObserverRef.current = new ResizeObserver(() => {
+                recoverViewport();
+            });
+            resizeObserverRef.current.observe(mapRef.current);
+        }
+
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                recoverViewport();
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
         return () => {
-            clearTimeout(timer);
+            window.clearTimeout(timer);
             window.removeEventListener("resize", handleResize);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            resizeObserverRef.current?.disconnect();
+            resizeObserverRef.current = null;
             if (leafletMapRef.current) {
                 leafletMapRef.current.remove();
                 leafletMapRef.current = null;
             }
         };
-    }, []);
+    }, [recoverViewport]);
 
-    // Pinler veya kategori filtreleri değişince güncelle
     useEffect(() => {
         const map = leafletMapRef.current;
         if (!map) return;
 
-        // Eski pinleri temizle
         clearPinsFromMap(map, markersRef.current);
         markersRef.current = [];
 
-        // Seçili kategorilere göre filtrele
         const filteredPins =
             selectedCategories.length === 0
-                ? pins
+                ? []
                 : pins.filter((pin) => selectedCategories.includes(pin.kategori));
+        const mappedPins = filteredPins.filter(
+            (pin) => Number.isFinite(pin.koordinat.lat) && Number.isFinite(pin.koordinat.lng)
+        );
 
-        // Yeni pinleri ekle
-        markersRef.current = addPinsToMap(map, filteredPins);
+        markersRef.current = addPinsToMap(map, mappedPins);
+        recoverViewport();
 
-        // Pin tıklama olayını dinle
         if (onPinSelect) {
             markersRef.current.forEach((marker, index) => {
                 marker.on("click", () => {
-                    if (filteredPins[index]) {
-                        onPinSelect(filteredPins[index]);
+                    if (mappedPins[index]) {
+                        onPinSelect(mappedPins[index]);
                     }
                 });
             });
         }
-    }, [pins, selectedCategories, onPinSelect]);
+    }, [onPinSelect, pins, recoverViewport, selectedCategories]);
 
     return <div ref={mapRef} className="w-full h-full relative z-0" />;
 }

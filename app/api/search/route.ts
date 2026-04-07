@@ -1,15 +1,25 @@
-﻿// WatcherG - Arama API endpoint'i
-// Keyword matching ile pinleri filtreler ve dondurur
+// WatcherG - Arama API endpoint'i
+// Keyword matching, geo lookup ve skorlamali sonuc siralama
 
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeSearchQuery } from "@/lib/search/keywords";
 import { checkRateLimit } from "@/lib/rateLimit";
+import {
+    buildPinSearchText,
+    doesTextContainToken,
+    getGeoLookups,
+    getMatchedCities,
+    matchesCity,
+    matchesCountry,
+    normalizeText,
+} from "@/lib/server/geo";
 import type { Pin } from "@/types/pin";
 
 export const dynamic = "force-dynamic";
 
 let cachedPins: Pin[] = [];
 let lastFetchTime = 0;
+
 const CACHE_DURATION_MS = 3 * 60 * 1000;
 
 async function getAllPins(baseUrl: string): Promise<Pin[]> {
@@ -32,6 +42,7 @@ async function getAllPins(baseUrl: string): Promise<Pin[]> {
             if (response.status !== "fulfilled" || !response.value.success) {
                 continue;
             }
+
             const payload = response.value.data || response.value.pins || [];
             allPins.push(...payload);
         }
@@ -45,46 +56,70 @@ async function getAllPins(baseUrl: string): Promise<Pin[]> {
     }
 }
 
-const COUNTRY_CENTERS: Record<string, { lat: number; lng: number; radius: number }> = {
-    TR: { lat: 39.0, lng: 35.0, radius: 5 },
-    US: { lat: 39.8, lng: -98.5, radius: 20 },
-    GB: { lat: 55.3, lng: -3.4, radius: 5 },
-    DE: { lat: 51.1, lng: 10.4, radius: 4 },
-    FR: { lat: 46.6, lng: 2.2, radius: 5 },
-    IT: { lat: 42.5, lng: 12.5, radius: 4 },
-    JP: { lat: 36.2, lng: 138.2, radius: 5 },
-    CN: { lat: 35.0, lng: 105.0, radius: 15 },
-    RU: { lat: 55.7, lng: 37.6, radius: 20 },
-    IN: { lat: 20.6, lng: 78.9, radius: 10 },
-    BR: { lat: -14.2, lng: -51.9, radius: 15 },
-    AU: { lat: -25.2, lng: 133.7, radius: 15 },
-    GR: { lat: 39.0, lng: 21.8, radius: 3 },
-    PK: { lat: 30.3, lng: 69.3, radius: 5 },
-    IR: { lat: 32.4, lng: 53.6, radius: 5 },
-    EG: { lat: 26.8, lng: 30.8, radius: 5 },
-    MX: { lat: 23.6, lng: -102.5, radius: 8 },
-};
-
-function isWithinRadius(
-    pinLat: number,
-    pinLng: number,
-    centerLat: number,
-    centerLng: number,
-    radius: number
-): boolean {
-    const latDiff = Math.abs(pinLat - centerLat);
-    const lngDiff = Math.abs(pinLng - centerLng);
-    return latDiff <= radius && lngDiff <= radius;
-}
-
 function dedupePins(pins: Pin[]): Pin[] {
     const seen = new Set<string>();
     return pins.filter((pin) => {
         const key = `${pin.id}:${pin.tarih}`;
-        if (seen.has(key)) return false;
+        if (seen.has(key)) {
+            return false;
+        }
+
         seen.add(key);
         return true;
     });
+}
+
+function getRecencyScore(dateValue: string): number {
+    const pinTime = new Date(dateValue).getTime();
+    if (Number.isNaN(pinTime)) {
+        return 0;
+    }
+
+    const hoursAgo = (Date.now() - pinTime) / (1000 * 60 * 60);
+    if (hoursAgo <= 6) return 12;
+    if (hoursAgo <= 24) return 8;
+    if (hoursAgo <= 72) return 4;
+    return 0;
+}
+
+function scorePin(
+    pin: Pin,
+    normalizedQuery: string,
+    queryWords: string[],
+    analysis: ReturnType<typeof analyzeSearchQuery>,
+    geoLookups: Awaited<ReturnType<typeof getGeoLookups>>,
+    matchedCities: ReturnType<typeof getMatchedCities>
+): number {
+    const searchableText = buildPinSearchText(pin);
+    let score = getRecencyScore(pin.tarih);
+
+    if (analysis.categories.includes(pin.kategori)) {
+        score += 40;
+    }
+
+    if (normalizedQuery.length >= 3 && searchableText.includes(normalizedQuery)) {
+        score += 35;
+    }
+
+    const matchedQueryWords = queryWords.filter((word) => doesTextContainToken(searchableText, word));
+    score += matchedQueryWords.length * 8;
+
+    if (analysis.countryCodes.some((countryCode) => matchesCountry(pin, countryCode, geoLookups))) {
+        score += 30;
+    }
+
+    if (matchedCities.some((city) => matchesCity(pin, city))) {
+        score += 30;
+    }
+
+    if (pin.konum) {
+        const normalizedLocation = normalizeText(pin.konum);
+        if (queryWords.some((word) => doesTextContainToken(normalizedLocation, word))) {
+            score += 12;
+        }
+    }
+
+    return score;
 }
 
 export async function GET(request: NextRequest) {
@@ -101,6 +136,7 @@ export async function GET(request: NextRequest) {
         const host = request.headers.get("host") || "localhost:3000";
         const baseUrl = `${protocol}://${host}`;
         const analysis = analyzeSearchQuery(searchQuery);
+        const geoLookups = await getGeoLookups();
 
         const clientIp =
             request.headers.get("x-forwarded-for")?.split(",")[0] ||
@@ -140,6 +176,11 @@ export async function GET(request: NextRequest) {
 
         const allPins = await getAllPins(baseUrl);
         let filteredPins = allPins;
+        const normalizedQuery = normalizeText(searchQuery);
+        const queryWords = normalizedQuery
+            .split(/\s+/)
+            .filter((word) => word.length >= 2);
+        const matchedCities = getMatchedCities(queryWords, geoLookups);
 
         if (analysis.categories.length > 0) {
             filteredPins = filteredPins.filter((pin) =>
@@ -148,36 +189,34 @@ export async function GET(request: NextRequest) {
         }
 
         if (analysis.countryCodes.length > 0) {
-            filteredPins = filteredPins.filter((pin) => {
-                return analysis.countryCodes.some((countryCode) => {
-                    const center = COUNTRY_CENTERS[countryCode];
-                    if (!center) return false;
-                    return isWithinRadius(
-                        pin.koordinat.lat,
-                        pin.koordinat.lng,
-                        center.lat,
-                        center.lng,
-                        center.radius
-                    );
-                });
-            });
+            filteredPins = filteredPins.filter((pin) =>
+                analysis.countryCodes.some((countryCode) => matchesCountry(pin, countryCode, geoLookups))
+            );
         }
 
-        const queryWords = searchQuery
-            .toLowerCase()
-            .split(/\s+/)
-            .filter((word) => word.length >= 2);
+        if (matchedCities.length > 0) {
+            filteredPins = filteredPins.filter((pin) =>
+                matchedCities.some((city) => matchesCity(pin, city))
+            );
+        }
 
         if (
             queryWords.length > 0 &&
             analysis.categories.length === 0 &&
-            analysis.countryCodes.length === 0
+            analysis.countryCodes.length === 0 &&
+            matchedCities.length === 0
         ) {
             filteredPins = filteredPins.filter((pin) => {
-                const searchableText = `${pin.baslik} ${pin.ozet}`.toLowerCase();
-                return queryWords.some((word) => searchableText.includes(word));
+                const searchableText = buildPinSearchText(pin);
+                return queryWords.some((word) => doesTextContainToken(searchableText, word));
             });
         }
+
+        filteredPins = [...filteredPins].sort((left, right) => {
+            const rightScore = scorePin(right, normalizedQuery, queryWords, analysis, geoLookups, matchedCities);
+            const leftScore = scorePin(left, normalizedQuery, queryWords, analysis, geoLookups, matchedCities);
+            return rightScore - leftScore;
+        });
 
         return NextResponse.json({
             success: true,
@@ -188,6 +227,7 @@ export async function GET(request: NextRequest) {
                 analysis: {
                     categories: analysis.categories,
                     countryCodes: analysis.countryCodes,
+                    cityMatches: matchedCities.map((city) => city.name),
                     scopeLevel: analysis.scopeLevel,
                     matchedKeywords: analysis.matchedKeywords,
                 },

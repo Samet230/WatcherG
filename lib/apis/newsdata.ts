@@ -9,6 +9,7 @@ export interface NewsDataArticle {
     title: string;
     link: string;
     description: string | null;
+    content?: string | null;
     pubDate: string;
     source_id: string;
     source_name: string;

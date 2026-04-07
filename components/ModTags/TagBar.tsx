@@ -16,6 +16,8 @@ const TAGS: PinCategory[] = [
     "health",
     "politics",
     "economy",
+    "technology",
+    "science",
     "general",
 ];
 

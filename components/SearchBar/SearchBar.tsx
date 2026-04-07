@@ -1,10 +1,9 @@
 "use client";
 
-// WatcherG — Arama çubuğu bileşeni
-// Debounced arama, autocomplete önerileri, sonuç sayısı göstergesi
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getSuggestions } from "@/lib/search/keywords";
+import { translate } from "@/lib/i18n";
+import { useLanguageStore } from "@/store/languageStore";
 
 interface SearchBarProps {
     onSearch: (query: string) => void;
@@ -25,19 +24,18 @@ export default function SearchBar({
     matchedKeywords,
     disabled = false,
 }: SearchBarProps) {
+    const language = useLanguageStore((state) => state.language);
     const [inputValue, setInputValue] = useState("");
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Debounced arama — 400ms bekle
     const handleInputChange = useCallback(
         (value: string) => {
             if (disabled) return;
             setInputValue(value);
 
-            // Öneri göster
             if (value.length >= 2) {
                 const newSuggestions = getSuggestions(value);
                 setSuggestions(newSuggestions);
@@ -47,7 +45,6 @@ export default function SearchBar({
                 setShowSuggestions(false);
             }
 
-            // Debounce ile arama tetikle
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
             }
@@ -60,17 +57,15 @@ export default function SearchBar({
                 onClear();
             }
         },
-        [disabled, onSearch, onClear]
+        [disabled, onClear, onSearch]
     );
 
-    // Öneri seçimi
     const handleSuggestionClick = (suggestion: string) => {
         setInputValue(suggestion);
         setShowSuggestions(false);
         onSearch(suggestion);
     };
 
-    // Enter tuşu ile arama
     const handleKeyDown = (event: React.KeyboardEvent) => {
         if (event.key === "Enter") {
             if (disabled) return;
@@ -82,13 +77,13 @@ export default function SearchBar({
                 onSearch(inputValue);
             }
         }
+
         if (event.key === "Escape") {
             setShowSuggestions(false);
             inputRef.current?.blur();
         }
     };
 
-    // Temizle
     const handleClear = () => {
         setInputValue("");
         setSuggestions([]);
@@ -97,14 +92,12 @@ export default function SearchBar({
         inputRef.current?.focus();
     };
 
-    // Dışarı tıklayınca önerileri kapat
     useEffect(() => {
         const handleClickOutside = () => setShowSuggestions(false);
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
-    // Cleanup
     useEffect(() => {
         return () => {
             if (debounceTimerRef.current) {
@@ -114,35 +107,33 @@ export default function SearchBar({
     }, []);
 
     return (
-        <div className="relative flex-1" onClick={(e) => e.stopPropagation()}>
-            {/* Arama input */}
+        <div className="relative flex-1" onClick={(event) => event.stopPropagation()}>
             <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#666680] text-sm">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#666680]">
                     🔍
                 </span>
                 <input
                     ref={inputRef}
                     type="text"
                     value={inputValue}
-                    onChange={(e) => handleInputChange(e.target.value)}
+                    onChange={(event) => handleInputChange(event.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => {
                         if (disabled) return;
                         if (suggestions.length > 0) setShowSuggestions(true);
                     }}
-                    placeholder="Ara... (ör: Türkiye depremleri, son dakika)"
+                    placeholder={translate(language, "search_placeholder")}
                     disabled={disabled}
-                    className="w-full bg-[#0A0A0F]/60 border border-[#1E1E2E] rounded-lg pl-9 pr-20 py-2 text-sm text-[#E0E0E0] placeholder-[#444] focus:outline-none focus:border-[#00FF88]/50 transition-colors"
+                    className="w-full rounded-lg border border-[#1E1E2E] bg-[#0A0A0F]/60 pl-9 pr-20 py-2 text-sm text-[#E0E0E0] placeholder-[#444] transition-colors focus:border-[#00FF88]/50 focus:outline-none"
                 />
 
-                {/* Sağ taraf — loading/temizle/sonuç */}
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1.5">
                     {isSearching && (
-                        <div className="w-4 h-4 border-2 border-[#00FF88] border-t-transparent rounded-full animate-spin" />
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#00FF88] border-t-transparent" />
                     )}
 
                     {hasSearched && !isSearching && (
-                        <span className="text-[#666680] text-xs">
+                        <span className="text-xs text-[#666680]">
                             {totalResults > 0 ? `${totalResults}` : "0"}
                         </span>
                     )}
@@ -150,7 +141,7 @@ export default function SearchBar({
                     {inputValue.length > 0 && !disabled && (
                         <button
                             onClick={handleClear}
-                            className="text-[#666680] hover:text-white text-xs p-0.5 transition-colors"
+                            className="p-0.5 text-xs text-[#666680] transition-colors hover:text-white"
                         >
                             ✕
                         </button>
@@ -158,29 +149,33 @@ export default function SearchBar({
                 </div>
             </div>
 
-            {/* Autocomplete önerileri */}
+            {disabled && (
+                <div className="mt-1 px-1 text-[10px] text-[#666680]">
+                    {translate(language, "search_disabled_short")}
+                </div>
+            )}
+
             {showSuggestions && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-[#12121A]/95 border border-[#1E1E2E] rounded-lg backdrop-blur-md shadow-xl z-50 overflow-hidden">
+                <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-[#1E1E2E] bg-[#12121A]/95 shadow-xl backdrop-blur-md">
                     {suggestions.map((suggestion, index) => (
                         <button
                             key={index}
                             onClick={() => handleSuggestionClick(suggestion)}
-                            className="w-full text-left px-4 py-2 text-sm text-[#E0E0E0] hover:bg-[#1E1E2E] transition-colors border-b border-[#1E1E2E]/50 last:border-b-0"
+                            className="w-full border-b border-[#1E1E2E]/50 px-4 py-2 text-left text-sm text-[#E0E0E0] transition-colors last:border-b-0 hover:bg-[#1E1E2E]"
                         >
-                            <span className="text-[#666680] mr-2">🔍</span>
+                            <span className="mr-2 text-[#666680]">🔍</span>
                             {suggestion}
                         </button>
                     ))}
                 </div>
             )}
 
-            {/* Eşleşen anahtar kelimeler */}
             {hasSearched && matchedKeywords.length > 0 && !isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-1 flex flex-wrap gap-1 px-1">
+                <div className="absolute left-0 right-0 top-full mt-1 flex flex-wrap gap-1 px-1">
                     {matchedKeywords.slice(0, 5).map((keyword, index) => (
                         <span
                             key={index}
-                            className="text-[10px] bg-[#00FF88]/10 text-[#00FF88] px-1.5 py-0.5 rounded"
+                            className="rounded bg-[#00FF88]/10 px-1.5 py-0.5 text-[10px] text-[#00FF88]"
                         >
                             {keyword}
                         </span>

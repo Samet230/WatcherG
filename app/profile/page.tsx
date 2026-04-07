@@ -15,7 +15,11 @@ import { getStars, removeStar } from "@/lib/db/stars";
 import type { StarredPin } from "@/lib/db/stars";
 import { getScopeSettings, updateScopeSettings } from "@/lib/db/scope_settings";
 import type { ScopeSettings } from "@/lib/db/scope_settings";
+import { getProfile, updateProfile } from "@/lib/db/users";
+import { normalizeLanguage, translate } from "@/lib/i18n";
+import LanguagePicker from "@/components/LanguagePicker";
 import type { PinCategory } from "@/types/pin";
+import { useLanguageStore } from "@/store/languageStore";
 
 // Kategori tanımları
 const ALL_CATEGORIES: { key: PinCategory; label: string; icon: string }[] = [
@@ -24,6 +28,8 @@ const ALL_CATEGORIES: { key: PinCategory; label: string; icon: string }[] = [
     { key: "health", label: "Sağlık", icon: "🏥" },
     { key: "politics", label: "Siyaset", icon: "🏛️" },
     { key: "economy", label: "Ekonomi", icon: "📊" },
+    { key: "technology", label: "Teknoloji", icon: "💻" },
+    { key: "science", label: "Bilim", icon: "🔬" },
     { key: "general", label: "Genel Haberler", icon: "📰" },
 ];
 
@@ -47,6 +53,8 @@ interface GeoItem {
 
 export default function ProfilePage() {
     const router = useRouter();
+    const language = useLanguageStore((state) => state.language);
+    const setLanguage = useLanguageStore((state) => state.setLanguage);
     const [userId, setUserId] = useState<string | null>(null);
     const [userEmail, setUserEmail] = useState<string>("");
     const [isLoading, setIsLoading] = useState(true);
@@ -73,6 +81,7 @@ export default function ProfilePage() {
 
     // Durum mesajları
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
+    const t = useCallback((key: Parameters<typeof translate>[1]) => translate(language, key), [language]);
 
     const loadStarsForUser = useCallback(async (targetUserId: string) => {
         try {
@@ -132,11 +141,15 @@ export default function ProfilePage() {
                         getStars(userId),
                         getScopeSettings(userId),
                     ]);
+                const { data: profile } = await getProfile(userId);
 
                 setInterests(userInterests);
                 setWatchlist(userWatchlist);
                 setStars(userStars);
                 setScopeSettings(userScope);
+                if (profile?.language) {
+                    setLanguage(normalizeLanguage(profile.language));
+                }
             } catch (loadError) {
                 console.error("Profil verisi yüklenemedi:", loadError);
             } finally {
@@ -144,7 +157,7 @@ export default function ProfilePage() {
             }
         };
         loadUserData();
-    }, [userId]);
+    }, [setLanguage, userId]);
 
     useEffect(() => {
         if (!userId) return;
@@ -259,6 +272,19 @@ export default function ProfilePage() {
         router.push("/auth/login");
     };
 
+    const handleLanguageChange = useCallback(
+        async (nextLanguage: string) => {
+            const normalized = normalizeLanguage(nextLanguage);
+            setLanguage(normalized);
+            if (!userId) return;
+
+            const { error } = await updateProfile(userId, { language: normalized });
+            setSaveMessage(error ? `❌ ${t("save_failed")}.` : `✅ ${t("saved")}.`);
+            setTimeout(() => setSaveMessage(null), 3000);
+        },
+        [setLanguage, t, userId]
+    );
+
     if (isLoading && userId) {
         return (
             <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
@@ -276,9 +302,9 @@ export default function ProfilePage() {
                         onClick={() => router.push("/dashboard")}
                         className="text-[#666680] hover:text-white transition-colors"
                     >
-                        ← Geri
+                        ← {t("back")}
                     </button>
-                    <h1 className="text-lg font-semibold">⚙️ Profil & Ayarlar</h1>
+                    <h1 className="text-lg font-semibold">⚙️ {t("profile_settings")}</h1>
                 </div>
                 <div className="flex items-center gap-3">
                     <span className="text-xs text-[#666680]">{userEmail}</span>
@@ -286,7 +312,7 @@ export default function ProfilePage() {
                         onClick={handleSignOut}
                         className="px-3 py-1.5 bg-[#FF4444]/10 text-[#FF4444] rounded-lg text-xs hover:bg-[#FF4444]/20 transition-colors"
                     >
-                        Çıkış Yap
+                        {t("logout")}
                     </button>
                 </div>
             </header>
@@ -295,10 +321,26 @@ export default function ProfilePage() {
                 {/* ─── 1. İlgi Alanları ─── */}
                 <section className="bg-[#12121A] border border-[#1E1E2E] rounded-2xl p-6">
                     <h2 className="text-sm font-semibold text-[#E0E0E0] mb-1">
-                        🎯 İlgi Alanları
+                        🌐 {t("language_settings")}
                     </h2>
                     <p className="text-xs text-[#666680] mb-4">
-                        Takip etmek istediğiniz kategorileri seçin
+                        {t("language_settings_desc")}
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-[#1E1E2E] bg-[#0A0A0F] px-4 py-4">
+                        <div>
+                            <div className="text-sm text-[#E0E0E0]">{t("language")}</div>
+                            <div className="mt-1 text-xs text-[#666680]">{t("guest_notice")}</div>
+                        </div>
+                        <LanguagePicker onChange={handleLanguageChange} />
+                    </div>
+                </section>
+
+                <section className="bg-[#12121A] border border-[#1E1E2E] rounded-2xl p-6">
+                    <h2 className="text-sm font-semibold text-[#E0E0E0] mb-1">
+                        🎯 {t("interests")}
+                    </h2>
+                    <p className="text-xs text-[#666680] mb-4">
+                        {t("interests_desc")}
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {ALL_CATEGORIES.map((cat) => {
@@ -324,10 +366,10 @@ export default function ProfilePage() {
                 {/* ─── 2. Takip Listesi ─── */}
                 <section className="bg-[#12121A] border border-[#1E1E2E] rounded-2xl p-6">
                     <h2 className="text-sm font-semibold text-[#E0E0E0] mb-1">
-                        📍 Takip Listesi
+                        📍 {t("watchlist")}
                     </h2>
                     <p className="text-xs text-[#666680] mb-4">
-                        Ülke veya şehir arayıp ekleyin (maks. 10)
+                        {t("watchlist_desc")}
                     </p>
 
                     {/* Arama */}
@@ -336,7 +378,7 @@ export default function ProfilePage() {
                             type="text"
                             value={watchlistSearch}
                             onChange={(e) => setWatchlistSearch(e.target.value)}
-                            placeholder="Ülke veya şehir ara..."
+                            placeholder={t("search_country_city")}
                             className="w-full bg-[#0A0A0F] border border-[#1E1E2E] rounded-lg px-4 py-2.5 text-sm text-[#E0E0E0] placeholder-[#444] focus:outline-none focus:border-[#00FF88]/50 transition-colors"
                         />
                         {filteredWatchlistResults.length > 0 && (
@@ -357,7 +399,7 @@ export default function ProfilePage() {
                                             {result.type === "country" ? "🏳️" : "🏙️"}
                                         </span>
                                         <span>{result.name}</span>
-                                        <span className="text-[#00FF88] text-xs ml-auto">+ ekle</span>
+                                        <span className="text-[#00FF88] text-xs ml-auto">+ {t("add")}</span>
                                     </button>
                                 ))}
                             </div>
@@ -371,7 +413,7 @@ export default function ProfilePage() {
                     {/* Watchlist öğeleri */}
                     {watchlist.length === 0 ? (
                         <p className="text-[#444] text-xs text-center py-4">
-                            Henüz takip listesine bölge eklenmedi
+                            {t("empty_watchlist")}
                         </p>
                     ) : (
                         <div className="space-y-2">
@@ -407,10 +449,10 @@ export default function ProfilePage() {
                 {/* ─── 3. Kapsam Ayarları ─── */}
                 <section className="bg-[#12121A] border border-[#1E1E2E] rounded-2xl p-6">
                     <h2 className="text-sm font-semibold text-[#E0E0E0] mb-1">
-                        🌐 Varsayılan Kapsam
+                        🌐 {t("default_scope")}
                     </h2>
                     <p className="text-xs text-[#666680] mb-4">
-                        Harita açılınca gösterilecek varsayılan bölge
+                        {t("default_scope_desc")}
                     </p>
 
                     {/* Kapsam seviyesi */}

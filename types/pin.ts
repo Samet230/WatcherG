@@ -6,6 +6,39 @@ export interface PinCoordinate {
   lng: number;
 }
 
+export interface EarthquakeEventMeta {
+  type: "earthquake";
+  magnitude: number;
+  depthKm: number;
+  eventTime: string;
+  severity: "minor" | "moderate" | "strong" | "major" | "great";
+  alertLevel: "green" | "yellow" | "orange" | "red" | null;
+  tsunami: boolean;
+  status?: string;
+}
+
+export interface NewsAlternativeSource {
+  sourceName: string;
+  url: string;
+  publishedAt: string;
+  title?: string;
+  summary?: string;
+  location?: string;
+  reliabilityScore?: number;
+  imageUrl?: string;
+}
+
+export interface NewsEventMeta {
+  type: "news";
+  clusterKey: string;
+  clusterSize: number;
+  sourceCount: number;
+  sourceNames: string[];
+  alternativeSources: NewsAlternativeSource[];
+}
+
+export type PinEventMeta = EarthquakeEventMeta | NewsEventMeta;
+
 export interface Pin {
   id: string;
   kategori: NewsCategory;
@@ -23,6 +56,7 @@ export interface Pin {
   detayUrl: string;
   gorsel?: string;                // ← YENİ: haber görseli
   etiketler?: string[];
+  eventMeta?: PinEventMeta;
 }
 
 // ─── KATEGORİLER ─────────────────────────────────
@@ -35,6 +69,8 @@ export type NewsCategory =
   | "health"     // Sağlık Haberleri               → mavi
   | "politics"   // Siyaset & Diplomasi Haberleri  → sarı
   | "economy"    // Ekonomi & Piyasa Haberleri     → yeşil
+  | "technology" // Teknoloji Haberleri            → mor
+  | "science"    // Bilim Haberleri                → camgobegi
   | "general"    // Genel Haberler                 → gri
   | "flight"     // Uçuş Takibi (V2)
   | "marine";    // Gemi Takibi (V2)
@@ -75,6 +111,8 @@ export const CATEGORY_CONFIG: Record<NewsCategory, CategoryConfig> = {
   health: { renk: "#4488FF", etiket: "SAĞLIK", pencereBaslik: "HEALTH ALERT", ikon: "🏥" },
   politics: { renk: "#FFD700", etiket: "SİYASET", pencereBaslik: "BRIEFING", ikon: "🏛️" },
   economy: { renk: "#00FF88", etiket: "EKONOMİ", pencereBaslik: "MARKET UPDATE", ikon: "📊" },
+  technology: { renk: "#A855F7", etiket: "TEKNOLOJİ", pencereBaslik: "TECH WATCH", ikon: "💻" },
+  science: { renk: "#7DF9FF", etiket: "BİLİM", pencereBaslik: "SCIENCE BRIEF", ikon: "🔬" },
   general: { renk: "#888888", etiket: "GENEL", pencereBaslik: "UPDATE", ikon: "📰" },
   flight: { renk: "#88FFFF", etiket: "UÇUŞ", pencereBaslik: "FLIGHT STATUS", ikon: "✈️" },
   marine: { renk: "#FFFF44", etiket: "GEMİ", pencereBaslik: "MARINE UPDATE", ikon: "🚢" },

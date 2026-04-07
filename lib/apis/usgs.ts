@@ -1,10 +1,11 @@
-// WatcherG — USGS Earthquake API bağlantısı
-// Dinamik tarih aralığı ile deprem verileri çeker
+// WatcherG - USGS Earthquake API baglantisi
+// Dinamik tarih araligi ile deprem verileri ceker
+
+import { fetchJsonWithTimeout } from "@/lib/server/fetchWithTimeout";
 
 const USGS_QUERY_URL =
     "https://earthquake.usgs.gov/fdsnws/event/1/query";
 
-// USGS'den gelen ham veri tipi
 export interface UsgsEarthquakeFeature {
     id: string;
     properties: {
@@ -18,10 +19,11 @@ export interface UsgsEarthquakeFeature {
         type: string;
         alert: string | null;
         tsunami: number;
+        source?: string;
     };
     geometry: {
         type: string;
-        coordinates: [number, number, number]; // [longitude, latitude, depth]
+        coordinates: [number, number, number];
     };
 }
 
@@ -36,10 +38,15 @@ interface UsgsApiResponse {
     features: UsgsEarthquakeFeature[];
 }
 
-// Son N saat içindeki depremleri çek (varsayılan: 24 saat, min büyüklük: 2.5)
+interface FetchEarthquakesOptions {
+    throwOnError?: boolean;
+    timeoutMs?: number;
+}
+
 export async function fetchEarthquakes(
     hoursBack: number = 24,
-    minimumMagnitude: number = 2.5
+    minimumMagnitude: number = 2.5,
+    options: FetchEarthquakesOptions = {}
 ): Promise<UsgsEarthquakeFeature[]> {
     try {
         const endTime = new Date().toISOString();
@@ -51,30 +58,32 @@ export async function fetchEarthquakes(
             starttime: startTime,
             endtime: endTime,
             minmagnitude: minimumMagnitude.toString(),
-            orderby: "time",       // En yeniler önce
-            limit: "500",          // Maksimum 500 sonuç
+            orderby: "time",
+            limit: "500",
         });
 
-        const response = await fetch(`${USGS_QUERY_URL}?${params}`, {
-            next: { revalidate: 300 }, // 5 dakikada bir yeniden doğrula
+        const data = await fetchJsonWithTimeout<UsgsApiResponse>(`${USGS_QUERY_URL}?${params}`, {
+            source: "USGS Earthquake API",
+            timeoutMs: options.timeoutMs,
+            next: { revalidate: 300 },
         });
 
-        if (!response.ok) {
-            throw new Error(`USGS API hatası: ${response.status}`);
-        }
-
-        const data: UsgsApiResponse = await response.json();
         return data.features;
     } catch (error) {
-        console.error("USGS deprem verisi çekilemedi:", error);
+        console.error("USGS deprem verisi cekilemedi:", error);
+
+        if (options.throwOnError) {
+            throw error;
+        }
+
         return [];
     }
 }
 
-// Belirli bir büyüklük eşiğinin üzerindeki depremleri çek
 export async function fetchEarthquakesByMagnitude(
     minimumMagnitude: number = 4.5,
-    hoursBack: number = 72
+    hoursBack: number = 72,
+    options: FetchEarthquakesOptions = {}
 ): Promise<UsgsEarthquakeFeature[]> {
-    return fetchEarthquakes(hoursBack, minimumMagnitude);
+    return fetchEarthquakes(hoursBack, minimumMagnitude, options);
 }

@@ -10,6 +10,23 @@ export interface FeedStats {
   peakHour: number;
 }
 
+export interface CommandPanelBucket {
+  label: string;
+  value: number;
+  pct: number;
+}
+
+export interface CommandPanelMetrics {
+  buckets: CommandPanelBucket[];
+  peakLabel: string;
+  peakValue: number;
+  critical: number;
+  high: number;
+  mappedRatio: number;
+  dominantCategory: string;
+  surgePct: number;
+}
+
 export interface FeedItem {
   id: string;
   title: string;
@@ -59,6 +76,8 @@ const CATEGORY_ORDER: NewsCategory[] = [
   "health",
   "politics",
   "economy",
+  "technology",
+  "science",
   "general",
 ];
 
@@ -211,6 +230,50 @@ export function buildSparklinePath(pins: Pin[]): string {
     .join(" ");
 }
 
+export function getCommandPanelMetrics(pins: Pin[]): CommandPanelMetrics {
+  const buckets = buildRecentBuckets(pins, 6, 2);
+  const maxValue = Math.max(1, ...buckets.map((bucket) => bucket.value));
+  const critical = pins.filter((pin) => pin.oncelik === "CRITICAL").length;
+  const high = pins.filter((pin) => pin.oncelik === "HIGH").length;
+  const mapped = pins.filter(
+    (pin) => Number.isFinite(pin.koordinat.lat) && Number.isFinite(pin.koordinat.lng)
+  ).length;
+  const dominantCategory =
+    getCategoryItems(pins).sort((left, right) => right.value - left.value)[0]?.label || "N/A";
+
+  const latestValue = buckets[buckets.length - 1]?.value || 0;
+  const previousValues = buckets.slice(0, -1).map((bucket) => bucket.value);
+  const previousAverage =
+    previousValues.length > 0
+      ? previousValues.reduce((total, value) => total + value, 0) / previousValues.length
+      : 0;
+  const surgePct =
+    previousAverage > 0
+      ? Math.round(((latestValue - previousAverage) / previousAverage) * 100)
+      : latestValue > 0
+        ? 100
+        : 0;
+
+  const peakBucket = buckets.reduce(
+    (best, bucket) => (bucket.value > best.value ? bucket : best),
+    buckets[0] || { label: "NOW", value: 0, pct: 0 }
+  );
+
+  return {
+    buckets: buckets.map((bucket) => ({
+      ...bucket,
+      pct: Math.max(10, Math.round((bucket.value / maxValue) * 100)),
+    })),
+    peakLabel: peakBucket.label,
+    peakValue: peakBucket.value,
+    critical,
+    high,
+    mappedRatio: pins.length > 0 ? Math.round((mapped / pins.length) * 100) : 0,
+    dominantCategory,
+    surgePct,
+  };
+}
+
 export function formatSyncLabel(lastUpdated: string | null): string {
   if (!lastUpdated) return "--:-- UTC";
 
@@ -250,6 +313,32 @@ function buildHourlyBuckets(pins: Pin[]): number[] {
     if (ageHours < 0 || ageHours > 24) continue;
     const bucketIndex = Math.min(11, Math.floor(ageHours / 2));
     buckets[11 - bucketIndex] += 1;
+  }
+
+  return buckets;
+}
+
+function buildRecentBuckets(
+  pins: Pin[],
+  bucketCount: number,
+  bucketHours: number
+): CommandPanelBucket[] {
+  const now = Date.now();
+  const buckets = Array.from({ length: bucketCount }, (_, index) => ({
+    label: index === bucketCount - 1 ? "NOW" : `-${(bucketCount - index - 1) * bucketHours}H`,
+    value: 0,
+    pct: 0,
+  }));
+
+  for (const pin of pins) {
+    const timestamp = new Date(pin.tarih).getTime();
+    if (Number.isNaN(timestamp)) continue;
+
+    const ageHours = (now - timestamp) / 3600000;
+    if (ageHours < 0 || ageHours > bucketCount * bucketHours) continue;
+
+    const bucketIndex = Math.min(bucketCount - 1, Math.floor(ageHours / bucketHours));
+    buckets[bucketCount - 1 - bucketIndex].value += 1;
   }
 
   return buckets;

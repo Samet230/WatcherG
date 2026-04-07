@@ -26,6 +26,7 @@ export interface RssArticle {
     title: string;
     link: string;
     description: string;
+    content?: string;
     pubDate: string;
     source: string;
     reliability: number;
@@ -43,6 +44,7 @@ function parseRssItems(xmlText: string, sourceName: string, reliability: number)
         const title = extractTag(itemContent, "title");
         const link = extractTag(itemContent, "link");
         const description = extractTag(itemContent, "description");
+        const content = extractTag(itemContent, "content:encoded");
         const pubDate = extractTag(itemContent, "pubDate");
 
         if (title && link) {
@@ -50,6 +52,7 @@ function parseRssItems(xmlText: string, sourceName: string, reliability: number)
                 title: cleanHtml(title),
                 link,
                 description: cleanHtml(description || ""),
+                content: cleanHtml(content || ""),
                 pubDate: pubDate || new Date().toISOString(),
                 source: sourceName,
                 reliability,
